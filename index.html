@@ -1,0 +1,1876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P4 Science — Heat | Polymath Learning Centre</title>
+<style>
+/* ========== DESIGN TOKENS ========== */
+:root {
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #FAFAFA;
+  --bg-tertiary: #F3F3F0;
+  --border-subtle: #E8E8E4;
+  --border-medium: #D4D4CF;
+  --text-primary: #1A1A1A;
+  --text-secondary: #5C5C5C;
+  --text-tertiary: #8A8A8A;
+  --text-inverse: #FFFFFF;
+  /* Science: blue accent */
+  --accent-light: #BBDEFB;
+  --accent-base: #64B5F6;
+  --accent-dark: #42A5F5;
+  --accent-bg: #E3F2FD;
+  --accent-deeper: #1E88E5;
+  /* Heat-specific warm accent for highlights */
+  --heat-warm: #FF8A65;
+  --heat-warm-bg: #FFF3E0;
+  --heat-warm-dark: #E64A19;
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.06);
+  --shadow-md: 0 2px 4px rgba(0,0,0,0.05), 0 6px 20px rgba(0,0,0,0.08);
+  --shadow-lg: 0 4px 6px rgba(0,0,0,0.05), 0 10px 30px rgba(0,0,0,0.1);
+  --shadow-button: 0 1px 2px rgba(0,0,0,0.05), 0 2px 8px rgba(0,0,0,0.08);
+  --shadow-button-hover: 0 2px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.12);
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 40px;
+  --space-2xl: 64px;
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 999px;
+  /* Typography */
+  --font-family: 'Century Gothic', CenturyGothic, AppleGothic, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-md: 1.125rem;
+  --font-size-lg: 1.5rem;
+  --font-size-xl: 2rem;
+  --font-size-2xl: 2.5rem;
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.6;
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.25s ease;
+  --transition-slow: 0.4s ease;
+}
+
+/* ========== RESET ========== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { font-size: 16px; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+body {
+  font-family: var(--font-family);
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  line-height: var(--line-height-normal);
+  min-height: 100vh;
+}
+img { max-width: 100%; display: block; }
+input, button, select, textarea { font-family: inherit; }
+
+/* ========== HEADER ========== */
+.polymath-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-primary);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.polymath-logo { height: 56px; width: auto; object-fit: contain; }
+.header-right {
+  position: absolute;
+  right: var(--space-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.admin-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border-medium);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  transition: all var(--transition-base);
+}
+.admin-btn:hover {
+  background: var(--accent-bg);
+  border-color: var(--accent-base);
+  color: var(--accent-deeper);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-button-hover);
+}
+.admin-btn.logged-in {
+  background: var(--accent-bg);
+  border-color: var(--accent-base);
+  color: var(--accent-deeper);
+}
+.admin-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.print-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-primary);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  color: var(--text-tertiary);
+}
+.print-btn:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-button-hover);
+  transform: translateY(-1px);
+}
+
+/* ========== MAIN CONTENT ========== */
+main {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: var(--space-xl) var(--space-lg) var(--space-2xl);
+  opacity: 0;
+  animation: fadeInPage 0.6s ease 0.1s forwards;
+}
+@keyframes fadeInPage {
+  to { opacity: 1; }
+}
+
+.page-title {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.01em;
+  text-align: center;
+  margin-bottom: var(--space-xs);
+}
+.page-subtitle {
+  font-size: var(--font-size-md);
+  font-weight: 400;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-bottom: var(--space-sm);
+}
+.page-badge {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--space-xl);
+}
+.page-badge span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  background: var(--heat-warm-bg);
+  color: var(--heat-warm-dark);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+/* ========== TABLE OF CONTENTS ========== */
+.toc-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-2xl);
+  box-shadow: var(--shadow-sm);
+}
+.toc-card h3 {
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--space-md);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.toc-list {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-sm);
+}
+.toc-list li a {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+.toc-list li a:hover {
+  background: var(--accent-bg);
+  color: var(--accent-deeper);
+}
+.toc-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--accent-light);
+  color: var(--accent-deeper);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ========== SECTION STYLES ========== */
+.notes-section {
+  margin-bottom: var(--space-2xl);
+  scroll-margin-top: 100px;
+}
+.section-heading {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--space-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+.section-heading .section-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--heat-warm-bg);
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+/* ========== PROSE ========== */
+.prose {
+  font-size: var(--font-size-md);
+  color: var(--text-secondary);
+  line-height: 1.75;
+  max-width: 720px;
+  margin-bottom: var(--space-lg);
+}
+.prose strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.term {
+  display: inline;
+  padding: 2px 8px;
+  background: var(--accent-bg);
+  color: var(--accent-deeper);
+  border-radius: 4px;
+  font-weight: 600;
+}
+.term-warm {
+  display: inline;
+  padding: 2px 8px;
+  background: var(--heat-warm-bg);
+  color: var(--heat-warm-dark);
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+/* ========== KEY QUESTION CALLOUT ========== */
+.key-question {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  background: var(--accent-bg);
+  border-left: 4px solid var(--accent-base);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  margin-bottom: var(--space-lg);
+  max-width: 720px;
+}
+.kq-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent-base);
+  color: white;
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.kq-text {
+  font-size: var(--font-size-base);
+  color: var(--accent-deeper);
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+/* ========== TAKEAWAY ========== */
+.takeaway {
+  max-width: 720px;
+  margin: var(--space-lg) 0 var(--space-xl);
+  padding: var(--space-lg) var(--space-xl);
+  background: var(--heat-warm-bg);
+  border-left: 4px solid var(--heat-warm);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  line-height: 1.7;
+}
+.takeaway-label {
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--heat-warm-dark);
+  margin-bottom: var(--space-sm);
+}
+
+/* ========== IMAGE GRID ========== */
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+  max-width: 720px;
+}
+.image-slot {
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--bg-secondary);
+  border: 2px dashed var(--border-medium);
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-base);
+}
+.image-slot.has-image {
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
+}
+.image-slot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.image-slot .image-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.7));
+  color: white;
+  padding: 20px 10px 8px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-align: center;
+}
+.image-slot .placeholder-text {
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+  text-align: center;
+  padding: var(--space-md);
+}
+.image-slot .placeholder-icon {
+  font-size: 2rem;
+  margin-bottom: var(--space-sm);
+  opacity: 0.4;
+}
+
+/* ========== ADMIN IMAGE UPLOAD OVERLAY ========== */
+.upload-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(30, 136, 229, 0.08);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  z-index: 5;
+}
+.upload-overlay:hover {
+  background: rgba(30, 136, 229, 0.15);
+}
+.admin-mode .upload-overlay {
+  display: flex;
+}
+.upload-overlay .upload-icon {
+  font-size: 1.5rem;
+  color: var(--accent-deeper);
+}
+.upload-overlay .upload-label {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--accent-deeper);
+}
+.upload-overlay input[type="file"] {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Admin delete button */
+.delete-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(229, 57, 53, 0.9);
+  color: white;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: all var(--transition-fast);
+}
+.delete-btn:hover {
+  background: #c62828;
+  transform: scale(1.1);
+}
+.admin-mode .delete-btn {
+  display: flex;
+}
+
+/* ========== UPLOADING PROGRESS ========== */
+.upload-progress {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(255,255,255,0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  z-index: 15;
+}
+.progress-bar-container {
+  width: 80%;
+  height: 6px;
+  background: var(--border-subtle);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: var(--accent-base);
+  border-radius: var(--radius-full);
+  transition: width 0.3s ease;
+  width: 0%;
+}
+.progress-text {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  font-weight: 600;
+}
+
+/* ========== DATA TABLE ========== */
+.data-table {
+  width: 100%;
+  max-width: 720px;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--space-lg);
+  font-size: var(--font-size-sm);
+}
+.data-table thead th {
+  background: var(--accent-base);
+  color: white;
+  padding: 12px 16px;
+  font-weight: 600;
+  text-align: left;
+}
+.data-table tbody td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-primary);
+  vertical-align: top;
+}
+.data-table tbody tr:last-child td { border-bottom: none; }
+.data-table tbody tr:hover td { background: var(--accent-bg); }
+
+/* ========== BEAKER COMPARISON WIDGET ========== */
+.beaker-compare {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-lg);
+  justify-content: center;
+  padding: var(--space-lg);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--space-lg);
+  max-width: 720px;
+}
+.beaker-item {
+  text-align: center;
+  min-width: 120px;
+}
+.beaker-visual {
+  width: 100px;
+  height: 120px;
+  margin: 0 auto var(--space-sm);
+  background: linear-gradient(to top, #bbdefb 0%, #bbdefb var(--fill), transparent var(--fill));
+  border: 3px solid var(--accent-dark);
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  position: relative;
+  transition: all 0.5s ease;
+}
+.beaker-visual::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: -8px;
+  right: -8px;
+  height: 3px;
+  background: var(--accent-dark);
+  border-radius: 2px;
+}
+.beaker-label {
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  color: var(--accent-deeper);
+  margin-bottom: 4px;
+}
+.beaker-info {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* ========== CONDUCTOR COMPARISON ========== */
+.conductor-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+  max-width: 720px;
+  margin-bottom: var(--space-lg);
+}
+.conductor-card {
+  padding: var(--space-lg);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
+}
+.conductor-card.good {
+  background: linear-gradient(135deg, #FFF3E0 0%, #FFF8E1 100%);
+  border-color: #FFCC80;
+}
+.conductor-card.poor {
+  background: linear-gradient(135deg, #E3F2FD 0%, #E8EAF6 100%);
+  border-color: #90CAF9;
+}
+.conductor-card h4 {
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  margin-bottom: var(--space-sm);
+}
+.conductor-card.good h4 { color: #E65100; }
+.conductor-card.poor h4 { color: #1565C0; }
+.conductor-card p {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+.conductor-examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+.conductor-tag {
+  display: inline-flex;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+}
+.conductor-card.good .conductor-tag {
+  background: #FFE0B2;
+  color: #BF360C;
+}
+.conductor-card.poor .conductor-tag {
+  background: #BBDEFB;
+  color: #0D47A1;
+}
+
+/* ========== STATE CHANGE FLOW ========== */
+.state-flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--space-lg);
+  max-width: 720px;
+}
+.state-box {
+  padding: 14px 20px;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: var(--font-size-sm);
+  text-align: center;
+  min-width: 90px;
+}
+.state-solid { background: #D7CCC8; color: #4E342E; }
+.state-liquid { background: #B3E5FC; color: #01579B; }
+.state-gas { background: #F3E5F5; color: #6A1B9A; }
+.state-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  font-weight: 600;
+}
+.state-arrow .arrow-icon { font-size: 1.2rem; color: var(--text-secondary); }
+.state-arrow .gain { color: #E65100; }
+.state-arrow .lose { color: #1565C0; }
+
+/* ========== KEYWORDS ========== */
+.keywords-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  max-width: 720px;
+  margin-bottom: var(--space-lg);
+}
+.keyword-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  user-select: none;
+}
+.keyword-chip:hover {
+  background: var(--accent-bg);
+  border-color: var(--accent-base);
+  color: var(--accent-deeper);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-button-hover);
+}
+.keyword-chip.revealed {
+  background: var(--accent-bg);
+  border-color: var(--accent-base);
+  color: var(--accent-deeper);
+}
+
+/* ========== ADMIN STATUS BAR ========== */
+.admin-bar {
+  display: none;
+  background: var(--accent-bg);
+  border-bottom: 1px solid var(--accent-light);
+  padding: 8px var(--space-lg);
+  text-align: center;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--accent-deeper);
+}
+.admin-bar.visible { display: block; }
+
+/* ========== TOAST NOTIFICATIONS ========== */
+.toast-container {
+  position: fixed;
+  bottom: var(--space-lg);
+  right: var(--space-lg);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.toast {
+  padding: 12px 20px;
+  border-radius: var(--radius-md);
+  background: var(--text-primary);
+  color: var(--text-inverse);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  transform: translateY(10px);
+  animation: toastIn 0.3s ease forwards;
+}
+.toast.success { background: #2E7D32; }
+.toast.error { background: #C62828; }
+@keyframes toastIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes toastOut {
+  to { opacity: 0; transform: translateY(-10px); }
+}
+
+/* ========== SECTION DIVIDER ========== */
+.section-divider {
+  max-width: 720px;
+  height: 1px;
+  background: var(--border-subtle);
+  margin: var(--space-2xl) 0;
+}
+
+/* ========== LEARNING OUTCOMES ========== */
+.lo-grid {
+  display: grid;
+  gap: var(--space-sm);
+  max-width: 720px;
+  margin-bottom: var(--space-lg);
+}
+.lo-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: 12px var(--space-md);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: 1.5;
+  transition: all var(--transition-base);
+}
+.lo-item:hover {
+  background: var(--accent-bg);
+  color: var(--accent-deeper);
+}
+.lo-check {
+  color: var(--accent-base);
+  font-size: 1rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 640px) {
+  .toc-list { grid-template-columns: 1fr; }
+  .conductor-grid { grid-template-columns: 1fr; }
+  .image-grid { grid-template-columns: 1fr 1fr; }
+  .beaker-compare { gap: var(--space-md); }
+  .header-right { position: static; margin-left: auto; }
+  .polymath-header { flex-wrap: wrap; gap: var(--space-sm); }
+  .page-title { font-size: var(--font-size-lg); }
+  .state-flow { flex-direction: column; }
+}
+
+/* ========== PRINT ========== */
+@media print {
+  @page { size: A4; margin: 15mm 20mm; }
+  .polymath-header { position: static; }
+  .header-right, .admin-bar, .print-btn, .admin-btn, .upload-overlay, .delete-btn, .toast-container { display: none !important; }
+  .polymath-logo { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  body { background: white; }
+  .notes-section { page-break-inside: avoid; }
+  .takeaway, .key-question { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .keyword-chip { background: #f5f5f5 !important; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  [data-tooltip] { border-bottom: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ========== ADMIN STATUS BAR ========== -->
+<div class="admin-bar" id="adminBar">
+  ✏️ Admin Mode — Click on image areas to upload or replace images
+</div>
+
+<!-- ========== HEADER ========== -->
+<header class="polymath-header">
+  <img src="https://dl.dropboxusercontent.com/scl/fi/h40yjlyg8ldefwfaa3dib/polymath-logo-sticker.png?rlkey=o1ra4taqy79gt9t8u096v82zj"
+       alt="Polymath Learning Centre"
+       class="polymath-logo" />
+  <div class="header-right">
+    <button class="admin-btn" id="authBtn" onclick="handleAuth()">
+      🔑 Admin Login
+    </button>
+    <button class="print-btn" onclick="window.print()" title="Print">
+      🖨️
+    </button>
+  </div>
+</header>
+
+<!-- ========== MAIN ========== -->
+<main>
+  <!-- Title -->
+  <h1 class="page-title">Heat</h1>
+  <p class="page-subtitle">Primary 4 Science — April Worksheet 2</p>
+  <div class="page-badge">
+    <span>🔥 Lower Block — Heat Energy</span>
+  </div>
+
+  <!-- Learning Outcomes -->
+  <div class="toc-card" style="margin-bottom: var(--space-xl);">
+    <h3>📋 PSLE Science Syllabus Learning Outcomes</h3>
+    <div class="lo-grid">
+      <div class="lo-item"><span class="lo-check">✔</span> List some common sources of heat.</div>
+      <div class="lo-item"><span class="lo-check">✔</span> State that the temperature of an object is a measurement of its degree of hotness.</div>
+      <div class="lo-item"><span class="lo-check">✔</span> Differentiate between heat and temperature.</div>
+      <div class="lo-item"><span class="lo-check">✔</span> Show an understanding that heat flows from a hotter to a colder object / region / place until both reach the same temperature.</div>
+      <div class="lo-item"><span class="lo-check">✔</span> Relate the change in temperature of an object to the gain or loss of heat by the object.</div>
+      <div class="lo-item"><span class="lo-check">✔</span> List some effects of heat gain/loss in our everyday life.</div>
+      <div class="lo-item"><span class="lo-check">✔</span> Identify good and poor conductors of heat.</div>
+    </div>
+  </div>
+
+  <!-- Table of Contents -->
+  <div class="toc-card">
+    <h3>📖 Topics Covered</h3>
+    <ul class="toc-list">
+      <li><a href="#section-1"><span class="toc-num">1</span> What is Heat?</a></li>
+      <li><a href="#section-2"><span class="toc-num">2</span> The Sun &amp; Uses of Heat</a></li>
+      <li><a href="#section-3"><span class="toc-num">3</span> Temperature</a></li>
+      <li><a href="#section-4"><span class="toc-num">4</span> Temperature vs Heat</a></li>
+      <li><a href="#section-5"><span class="toc-num">5</span> Heat Conductors</a></li>
+      <li><a href="#section-6"><span class="toc-num">6</span> Expansion &amp; Contraction</a></li>
+      <li><a href="#section-7"><span class="toc-num">7</span> Effects of Heat on State</a></li>
+      <li><a href="#section-8"><span class="toc-num">8</span> Daily Life Applications</a></li>
+      <li><a href="#section-9"><span class="toc-num">9</span> Key Keywords</a></li>
+    </ul>
+  </div>
+
+  <!-- ==================== SECTION 1: What is Heat? ==================== -->
+  <section class="notes-section" id="section-1">
+    <h2 class="section-heading">
+      <span class="section-icon">🔥</span>
+      What is Heat?
+    </h2>
+
+    <div class="key-question">
+      <span class="kq-number">1</span>
+      <span class="kq-text">What is heat?</span>
+    </div>
+
+    <p class="prose">
+      Like light, <span class="term-warm">heat</span> is a form of <strong>energy</strong>.
+      Heat makes things <strong>hot</strong>. A lack of heat makes things <strong>cold</strong>.
+    </p>
+
+    <div class="key-question">
+      <span class="kq-number">2</span>
+      <span class="kq-text">What is a source of heat?</span>
+    </div>
+
+    <p class="prose">
+      A <span class="term-warm">heat source</span> is any object that <strong>produces</strong> heat.
+    </p>
+
+    <div class="key-question">
+      <span class="kq-number">3</span>
+      <span class="kq-text">What are some examples of natural sources of heat?</span>
+    </div>
+
+    <h3 style="font-size: var(--font-size-base); font-weight: 700; color: var(--heat-warm-dark); margin-bottom: var(--space-md);">
+      Natural Sources of Heat
+    </h3>
+    <div class="image-grid" id="imgGrid-natural-sources">
+      <div class="image-slot" data-slot="natural-geysers" data-caption="Geysers">
+        <div class="placeholder-text"><div class="placeholder-icon">🌋</div>Geysers</div>
+        <div class="upload-overlay">
+          <span class="upload-icon">📤</span>
+          <span class="upload-label">Upload Image</span>
+          <input type="file" accept="image/*" onchange="handleImageUpload(event, 'natural-geysers', 'Geysers')">
+        </div>
+      </div>
+      <div class="image-slot" data-slot="natural-volcano" data-caption="Volcano">
+        <div class="placeholder-text"><div class="placeholder-icon">🌋</div>Volcano</div>
+        <div class="upload-overlay">
+          <span class="upload-icon">📤</span>
+          <span class="upload-label">Upload Image</span>
+          <input type="file" accept="image/*" onchange="handleImageUpload(event, 'natural-volcano', 'Volcano')">
+        </div>
+      </div>
+      <div class="image-slot" data-slot="natural-wildfires" data-caption="Wild Fires">
+        <div class="placeholder-text"><div class="placeholder-icon">🔥</div>Wild Fires</div>
+        <div class="upload-overlay">
+          <span class="upload-icon">📤</span>
+          <span class="upload-label">Upload Image</span>
+          <input type="file" accept="image/*" onchange="handleImageUpload(event, 'natural-wildfires', 'Wild Fires')">
+        </div>
+      </div>
+      <div class="image-slot" data-slot="natural-sun" data-caption="Sun">
+        <div class="placeholder-text"><div class="placeholder-icon">☀️</div>Sun</div>
+        <div class="upload-overlay">
+          <span class="upload-icon">📤</span>
+          <span class="upload-label">Upload Image</span>
+          <input type="file" accept="image/*" onchange="handleImageUpload(event, 'natural-sun', 'Sun')">
+        </div>
+      </div>
+    </div>
+
+    <div class="key-question">
+      <span class="kq-number">4</span>
+      <span class="kq-text">What are some examples of man-made sources of heat?</span>
+    </div>
+
+    <h3 style="font-size: var(--font-size-base); font-weight: 700; color: var(--heat-warm-dark); margin-bottom: var(--space-md);">
+      Man-made Sources of Heat
+    </h3>
+    <div class="image-grid" id="imgGrid-manmade-sources">
+      <div class="image-slot" data-slot="manmade-candle" data-caption="Candle Flame">
+        <div class="placeholder-text"><div class="placeholder-icon">🕯️</div>Candle Flame</div>
+        <div class="upload-overlay">
+          <span class="upload-icon">📤</span>
+          <span class="upload-label">Upload Image</span>
+          <input type="file" accept="image/*" onchange="handleImageUpload(event, 'manmade-candle', 'Candle Flame')">
+        </div>
+      </div>
+      <div class="image-slot" data-slot="manmade-iron" data-caption="Electric Iron">
+        <div class="placeholder-text"><div class="placeholder-icon">🔌</div>Electric Iron</div>
+        <div class="upload-overlay">
+          <span class="upload-icon">📤</span>
+          <span class="upload-label">Upload Image</span>
+          <input type="file" accept="image/*" onchange="handleImageUpload(event, 'manmade-iron', 'Electric Iron')">
+        </div>
+      </div>
+      <div class="image-slot" data-slot="manmade-hairdryer" data-caption="Hairdryer">
+        <div class="placeholder-text"><div class="placeholder-icon">💨</div>Hairdryer</div>
+        <div class="upload-overlay">
+          <span class="upload-icon">📤</span>
+          <span class="upload-label">Upload Image</span>
+          <input type="file" accept="image/*" onchange="handleImageUpload(event, 'manmade-hairdryer', 'Hairdryer')">
+        </div>
+      </div>
+      <div class="image-slot" data-slot="manmade-oven" data-caption="Oven">
+        <div class="placeholder-text"><div class="placeholder-icon">🍳</div>Oven</div>
+        <div class="upload-overlay">
+          <span class="upload-icon">📤</span>
+          <span class="upload-label">Upload Image</span>
+          <input type="file" accept="image/*" onchange="handleImageUpload(event, 'manmade-oven', 'Oven')">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ==================== SECTION 2: The Sun & Uses of Heat ==================== -->
+  <section class="notes-section" id="section-2">
+    <h2 class="section-heading">
+      <span class="section-icon">☀️</span>
+      The Sun &amp; Uses of Heat
+    </h2>
+
+    <div class="key-question">
+      <span class="kq-number">5</span>
+      <span class="kq-text">What is the main source of heat on Earth?</span>
+    </div>
+
+    <p class="prose">
+      We have learnt that the <strong>Sun</strong> is the <span class="term-warm">main source of light</span> on Earth. The Sun is also the Earth's <strong>main source of heat energy</strong>.
+    </p>
+    <p class="prose">
+      The sun provides heat for living things to <strong>maintain their body temperatures</strong> in order to <strong>survive</strong>. Heat from the sun also allows water to <span class="term">evaporate</span> and <span class="term">condense</span>, providing living things with a <strong>constant supply of fresh water</strong>.
+    </p>
+
+    <div class="image-grid" style="grid-template-columns: 1fr;">
+      <div class="image-slot" data-slot="sun-main" data-caption="The Sun — Earth's main source of heat" style="min-height: 200px;">
+        <div class="placeholder-text"><div class="placeholder-icon">☀️</div>The Sun — Earth's main heat source</div>
+        <div class="upload-overlay">
+          <span class="upload-icon">📤</span>
+          <span class="upload-label">Upload Image</span>
+          <input type="file" accept="image/*" onchange="handleImageUpload(event, 'sun-main', 'The Sun — Earth\'s main source of heat')">
+        </div>
+      </div>
+    </div>
+
+    <div class="key-question">
+      <span class="kq-number">6</span>
+      <span class="kq-text">What are some examples of the activities in which humans use heat for?</span>
+    </div>
+
+    <p class="prose">
+      The following are some activities that humans use heat for:
+    </p>
+
+    <div style="max-width: 720px; margin-bottom: var(--space-lg);">
+      <div style="display: grid; gap: var(--space-sm);">
+        <div class="lo-item"><span style="color: var(--heat-warm); font-weight: 700;">1.</span> To <strong>dry our clothes</strong>.</div>
+        <div class="lo-item"><span style="color: var(--heat-warm); font-weight: 700;">2.</span> To <strong>cook food</strong>.</div>
+        <div class="lo-item"><span style="color: var(--heat-warm); font-weight: 700;">3.</span> To <strong>kill germs and bacteria</strong>.</div>
+        <div class="lo-item"><span style="color: var(--heat-warm); font-weight: 700;">4.</span> To <strong>maintain body temperature</strong> in cold countries.</div>
+        <div class="lo-item"><span style="color: var(--heat-warm); font-weight: 700;">5.</span> To <strong>generate electricity</strong> in power plants.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ==================== SECTION 3: Temperature ==================== -->
+  <section class="notes-section" id="section-3">
+    <h2 class="section-heading">
+      <span class="section-icon">🌡️</span>
+      Temperature
+    </h2>
+
+    <div class="key-question">
+      <span class="kq-number">7</span>
+      <span class="kq-text">What is temperature?</span>
+    </div>
+
+    <p class="prose">
+      The <span class="term">temperature</span> of an object is a measurement of the <strong>degree of hotness</strong> of the object. An object with a high temperature is <span class="term-warm">hot</span> while an object with a low temperature is <span class="term">cold</span>.
+    </p>
+    <p class="prose">
+      Temperature is measured in <strong>degree Celsius (°C)</strong>.
+    </p>
+
+    <div class="key-question">
+      <span class="kq-number">8</span>
+      <span class="kq-text">What do we use to measure temperature?</span>
+    </div>
+
+    <p class="prose">
+      Our skin cannot accurately tell the temperature of objects. In order to take exact measurements of the temperature of objects, we use a <span class="term">thermometer</span>.
+    </p>
+
+    <p class="prose">
+      The following table shows the two types of commonly used thermometers and their features:
+    </p>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Type of Thermometer</th>
+          <th>Uses</th>
+          <th>Features</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Clinical Thermometer</strong></td>
+          <td>Used to measure the temperature of the <strong>human body</strong>.</td>
+          <td>
+            Temperature range: <strong>35°C to 42°C</strong><br><br>
+            Has a <strong>narrow temperature range</strong> as the human body can only stay alive in this narrow temperature range.
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Laboratory Thermometer</strong></td>
+          <td>Used to measure temperatures of <strong>substances involved in experiments</strong>.</td>
+          <td>
+            Temperature range: <strong>-10°C to 110°C</strong>.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="image-grid">
+      <div class="image-slot" data-slot="thermo-clinical" data-caption="Clinical Thermometer">
+        <div class="placeholder-text"><div class="placeholder-icon">🌡️</div>Clinical Thermometer</div>
+        <div class="upload-overlay">
+          <span class="upload-icon">📤</span>
+          <span class="upload-label">Upload Image</span>
+          <input type="file" accept="image/*" onchange="handleImageUpload(event, 'thermo-clinical', 'Clinical Thermometer')">
+        </div>
+      </div>
+      <div class="image-slot" data-slot="thermo-lab" data-caption="Laboratory Thermometer">
+        <div class="placeholder-text"><div class="placeholder-icon">🔬</div>Laboratory Thermometer</div>
+        <div class="upload-overlay">
+          <span class="upload-icon">📤</span>
+          <span class="upload-label">Upload Image</span>
+          <input type="file" accept="image/*" onchange="handleImageUpload(event, 'thermo-lab', 'Laboratory Thermometer')">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ==================== SECTION 4: Temperature vs Heat ==================== -->
+  <section class="notes-section" id="section-4">
+    <h2 class="section-heading">
+      <span class="section-icon">⚖️</span>
+      Difference between Temperature and Heat
+    </h2>
+
+    <div class="key-question">
+      <span class="kq-number">9</span>
+      <span class="kq-text">What is the difference between temperature and heat?</span>
+    </div>
+
+    <p class="prose">
+      <span class="term">Temperature</span> is the measurement of the <strong>degree of hotness</strong> of an object while the <span class="term-warm">amount of heat</span> is the <strong>total amount of heat energy</strong> contained in an object.
+    </p>
+
+    <div class="key-question">
+      <span class="kq-number">10</span>
+      <span class="kq-text">What are the factors that affect the amount of heat in an object?</span>
+    </div>
+
+    <p class="prose">
+      If the type of material is the same, two factors affect the amount of heat it possesses — its <strong>temperature</strong> and its <strong>volume</strong>.
+    </p>
+
+    <!-- Beaker Comparison A vs B -->
+    <p class="prose" style="font-weight: 600; color: var(--text-primary); margin-bottom: var(--space-sm);">
+      Same volume, different temperature:
+    </p>
+    <div class="beaker-compare">
+      <div class="beaker-item">
+        <div class="beaker-label">Beaker A</div>
+        <div class="beaker-visual" style="--fill: 40%;"></div>
+        <div class="beaker-info">Volume: <strong>30 ml</strong><br>Temperature: <strong>25°C</strong></div>
+      </div>
+      <div class="beaker-item">
+        <div class="beaker-label">Beaker B</div>
+        <div class="beaker-visual" style="--fill: 40%; background: linear-gradient(to top, #ffcc80 0%, #ffcc80 var(--fill), transparent var(--fill));"></div>
+        <div class="beaker-info">Volume: <strong>30 ml</strong><br>Temperature: <strong>50°C</strong></div>
+      </div>
+    </div>
+    <p class="prose">
+      The water in beaker <strong>B</strong> has <span class="term-warm">more heat</span> since the water in both beakers have the same volume (30 ml), but the water in beaker B has <strong>higher temperature</strong>.
+    </p>
+
+    <!-- Beaker Comparison C vs D -->
+    <p class="prose" style="font-weight: 600; color: var(--text-primary); margin-bottom: var(--space-sm);">
+      Same temperature, different volume:
+    </p>
+    <div class="beaker-compare">
+      <div class="beaker-item">
+        <div class="beaker-label">Beaker C</div>
+        <div class="beaker-visual" style="--fill: 40%; background: linear-gradient(to top, #ef9a9a 0%, #ef9a9a var(--fill), transparent var(--fill));"></div>
+        <div class="beaker-info">Volume: <strong>30 ml</strong><br>Temperature: <strong>80°C</strong></div>
+      </div>
+      <div class="beaker-item">
+        <div class="beaker-label">Beaker D</div>
+        <div class="beaker-visual" style="--fill: 80%; background: linear-gradient(to top, #ef9a9a 0%, #ef9a9a var(--fill), transparent var(--fill)); width: 120px; height: 140px;"></div>
+        <div class="beaker-info">Volume: <strong>100 ml</strong><br>Temperature: <strong>80°C</strong></div>
+      </div>
+    </div>
+    <p class="prose">
+      The water in beaker <strong>D</strong> has <span class="term-warm">more heat</span> since the water in both beakers have the same temperature (80°C), but the water in beaker D has <strong>more volume</strong> of water.
+    </p>
+
+    <div class="takeaway">
+      <div class="takeaway-label">🔑 Key Takeaway</div>
+      Among the 4 beakers of water, beaker <strong>D</strong> has the <strong>most heat</strong> as it has both the <strong>highest temperature</strong> (80°C) and the <strong>largest volume</strong> (100 ml).
+    </div>
+
+    <div class="image-grid" style="grid-template-columns: 1fr;">
+      <div class="image-slot" data-slot="beaker-comparison" data-caption="Beaker comparison experiment" style="min-height: 200px;">
+        <div class="placeholder-text"><div class="placeholder-icon">🧪</div>Beaker comparison diagram</div>
+        <div class="upload-overlay">
+          <span class="upload-icon">📤</span>
+          <span class="upload-label">Upload Image</span>
+          <input type="file" accept="image/*" onchange="handleImageUpload(event, 'beaker-comparison', 'Beaker comparison experiment')">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ==================== SECTION 5: Conductors ==================== -->
+  <section class="notes-section" id="section-5">
+    <h2 class="section-heading">
+      <span class="section-icon">🍳</span>
+      Good and Poor Conductors of Heat
+    </h2>
+
+    <div class="key-question">
+      <span class="kq-number">11</span>
+      <span class="kq-text">What are good conductors and poor conductors of heat?</span>
+    </div>
+
+    <p class="prose">
+      The <span class="term">heat conductivity</span> of a material measures how <strong>easily the material allows heat to flow through it</strong>.
+    </p>
+
+    <div class="conductor-grid">
+      <div class="conductor-card good">
+        <h4>🔥 Good Conductor of Heat</h4>
+        <p>Allows heat to flow through it <strong>quickly and easily</strong>.</p>
+        <div class="conductor-examples">
+          <span class="conductor-tag">Steel</span>
+          <span class="conductor-tag">Copper</span>
+          <span class="conductor-tag">Aluminium</span>
+          <span class="conductor-tag">Iron</span>
+        </div>
+      </div>
+      <div class="conductor-card poor">
+        <h4>❄️ Poor Conductor of Heat</h4>
+        <p>Allows heat to flow through it <strong>slowly and not easily</strong>.</p>
+        <div class="conductor-examples">
+          <span class="conductor-tag">Plastic</span>
+          <span class="conductor-tag">Wood</span>
+          <span class="conductor-tag">Rubber</span>
+          <span class="conductor-tag">Air</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="prose" style="font-weight: 600; color: var(--text-primary);">
+      Example: The frying pan
+    </p>
+    <p class="prose">
+      The <strong>base</strong> of the frying pan must be made of a <span class="term-warm">good conductor of heat</span> such as <strong>steel</strong> in order to allow heat from the flame to flow to the food <strong>faster</strong> in order to cook the food faster.
+    </p>
+    <p class="prose">
+      The <strong>handle</strong> of a frying pan must be made of a <span class="term">poor conductor of heat</span> such as <strong>plastic</strong> in order to slow down heat flow from the frying pan to the user's hand in order to protect the hand from being burnt by the heat.
+    </p>
+
+    <div class="image-grid" style="grid-template-columns: 1fr;">
+      <div class="image-slot" data-slot="frying-pan" data-caption="Frying pan — good and poor conductors" style="min-height: 200px;">
+        <div class="placeholder-text"><div class="placeholder-icon">🍳</div>Frying pan diagram</div>
+        <div class="upload-overlay">
+          <span class="upload-icon">📤</span>
+          <span class="upload-label">Upload Image</span>
+          <input type="file" accept="image/*" onchange="handleImageUpload(event, 'frying-pan', 'Frying pan — good and poor conductors')">
+        </div>
+      </div>
+    </div>
+
+    <div class="takeaway">
+      <div class="takeaway-label">⚠️ Common Misconception</div>
+      Heat conductivity is <strong>relative</strong>. When two or more materials are given in an experiment, use the words <strong>"better"</strong> or <strong>"poorer"</strong> conductors of heat if you are to select them due to their heat conductivity. All metals are good conductors of heat, but some are <strong>better</strong> conductors than others.
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ==================== SECTION 6: Expansion & Contraction ==================== -->
+  <section class="notes-section" id="section-6">
+    <h2 class="section-heading">
+      <span class="section-icon">↔️</span>
+      Expansion and Contraction
+    </h2>
+
+    <div class="key-question">
+      <span class="kq-number">12</span>
+      <span class="kq-text">What happens to a matter when it gains heat or loses heat?</span>
+    </div>
+
+    <p class="prose">
+      Matter <span class="term-warm">expand</span> when heated and <strong>increase in volume</strong>. This means that matter <strong>occupy more space</strong> after gaining heat.
+    </p>
+    <p class="prose">
+      The opposite happens when matter <span class="term">lose heat</span>. When matter lose heat, they <strong>contract</strong>, occupying <strong>less space</strong> than before.
+    </p>
+
+    <p class="prose" style="font-weight: 600; color: var(--text-primary);">
+      The Ball and Ring Experiment:
+    </p>
+    <p class="prose">
+      Initially, the metal ball is <strong>able to pass through</strong> the ring. After the ball is heated with a flame, it can <strong>no longer pass through</strong> the iron ring as the iron ball <span class="term-warm">gained heat</span> and <strong>expanded</strong>, occupying more space than before.
+    </p>
+
+    <div class="image-grid">
+      <div class="image-slot" data-slot="ball-ring-before" data-caption="Ball passes through ring (before heating)">
+        <div class="placeholder-text"><div class="placeholder-icon">⭕</div>Before heating</div>
+        <div class="upload-overlay">
+          <span class="upload-icon">📤</span>
+          <span class="upload-label">Upload Image</span>
+          <input type="file" accept="image/*" onchange="handleImageUpload(event, 'ball-ring-before', 'Ball passes through ring (before heating)')">
+        </div>
+      </div>
+      <div class="image-slot" data-slot="ball-ring-after" data-caption="Ball cannot pass through ring (after heating)">
+        <div class="placeholder-text"><div class="placeholder-icon">🔴</div>After heating</div>
+        <div class="upload-overlay">
+          <span class="upload-icon">📤</span>
+          <span class="upload-label">Upload Image</span>
+          <input type="file" accept="image/*" onchange="handleImageUpload(event, 'ball-ring-after', 'Ball cannot pass through ring (after heating)')">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ==================== SECTION 7: Effects of Heat on State ==================== -->
+  <section class="notes-section" id="section-7">
+    <h2 class="section-heading">
+      <span class="section-icon">💧</span>
+      Other Effects of Heat Gain and Heat Loss
+    </h2>
+
+    <p class="prose">
+      Matter can also experience a <strong>change in state</strong> when they gain heat or lose heat.
+    </p>
+
+    <!-- State Change Flow -->
+    <div class="state-flow">
+      <div class="state-box state-solid">Solid</div>
+      <div class="state-arrow">
+        <span class="gain">Gain heat →</span>
+        <span class="arrow-icon">⇄</span>
+        <span class="lose">← Lose heat</span>
+      </div>
+      <div class="state-box state-liquid">Liquid</div>
+      <div class="state-arrow">
+        <span class="gain">Gain heat →</span>
+        <span class="arrow-icon">⇄</span>
+        <span class="lose">← Lose heat</span>
+      </div>
+      <div class="state-box state-gas">Gas</div>
+    </div>
+
+    <p class="prose">
+      When a solid <span class="term-warm">gains heat</span> and the temperature is at the substance's <strong>melting point</strong>, it will <strong>melt</strong>, changing from the solid state to liquid state. Ice melts when gaining heat at its melting point of <strong>0°C</strong>. Iron melts when gaining heat at its melting point of <strong>1,538°C</strong>.
+    </p>
+
+    <p class="prose">
+      When a liquid <span class="term-warm">gains heat</span> when its temperature is at <strong>boiling point</strong>, it will <strong>boil</strong>, changing from the liquid state to the gaseous state. The boiling point of water is <strong>100°C</strong>. The boiling point of alcohol is <strong>78.37°C</strong>.
+    </p>
+
+    <p class="prose">
+      When a liquid <span class="term">loses heat</span> when its temperature is at the <strong>freezing point</strong>, it will <strong>freeze</strong>, changing from the liquid state to the solid state.
+    </p>
+
+    <div class="takeaway">
+      <div class="takeaway-label">🔑 Key Insight</div>
+      As the freezing point is also the melting point, what state water ends up in depends on whether it is <strong>gaining heat</strong> or <strong>losing heat</strong>. At <strong>0°C</strong>, if water is losing heat, it <strong>freezes</strong> into ice. If ice gains heat at 0°C, it <strong>melts</strong>.
+    </div>
+
+    <p class="prose">
+      Even though matter may not be at the boiling or melting/freezing point, it can also undergo state changes.
+    </p>
+    <p class="prose">
+      Liquids such as water <span class="term-warm">evaporate</span> when they gain heat. The liquid slowly changes into a gas <strong>at the surface</strong> of the liquid.
+    </p>
+    <p class="prose">
+      Gases such as water <span class="term">condense</span> when they lose heat. When these gases come into contact with a <strong>sufficiently colder surface</strong>, they lose heat and turn into <strong>droplets</strong>.
+    </p>
+
+    <div class="image-grid">
+      <div class="image-slot" data-slot="melting-example" data-caption="Melting — solid to liquid">
+        <div class="placeholder-text"><div class="placeholder-icon">🧊</div>Melting</div>
+        <div class="upload-overlay">
+          <span class="upload-icon">📤</span>
+          <span class="upload-label">Upload Image</span>
+          <input type="file" accept="image/*" onchange="handleImageUpload(event, 'melting-example', 'Melting — solid to liquid')">
+        </div>
+      </div>
+      <div class="image-slot" data-slot="boiling-example" data-caption="Boiling — liquid to gas">
+        <div class="placeholder-text"><div class="placeholder-icon">♨️</div>Boiling</div>
+        <div class="upload-overlay">
+          <span class="upload-icon">📤</span>
+          <span class="upload-label">Upload Image</span>
+          <input type="file" accept="image/*" onchange="handleImageUpload(event, 'boiling-example', 'Boiling — liquid to gas')">
+        </div>
+      </div>
+      <div class="image-slot" data-slot="evaporation-example" data-caption="Evaporation">
+        <div class="placeholder-text"><div class="placeholder-icon">💨</div>Evaporation</div>
+        <div class="upload-overlay">
+          <span class="upload-icon">📤</span>
+          <span class="upload-label">Upload Image</span>
+          <input type="file" accept="image/*" onchange="handleImageUpload(event, 'evaporation-example', 'Evaporation')">
+        </div>
+      </div>
+      <div class="image-slot" data-slot="condensation-example" data-caption="Condensation">
+        <div class="placeholder-text"><div class="placeholder-icon">💧</div>Condensation</div>
+        <div class="upload-overlay">
+          <span class="upload-icon">📤</span>
+          <span class="upload-label">Upload Image</span>
+          <input type="file" accept="image/*" onchange="handleImageUpload(event, 'condensation-example', 'Condensation')">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ==================== SECTION 8: Daily Life Applications ==================== -->
+  <section class="notes-section" id="section-8">
+    <h2 class="section-heading">
+      <span class="section-icon">🏗️</span>
+      Effects of Expansion and Contraction in Our Daily Lives
+    </h2>
+
+    <div class="key-question">
+      <span class="kq-number">13</span>
+      <span class="kq-text">What do we do to prevent things from being damaged when they expand or contract after gaining or losing heat?</span>
+    </div>
+
+    <p class="prose">
+      Humans understand that matter expand after gaining heat and contract after losing heat. Therefore, we build things with the expansion and contraction of materials in mind.
+    </p>
+
+    <p class="prose">
+      <strong>Railway tracks:</strong> Gaps are left between each segment of a railway track. This is to prevent them from pushing onto each other and <strong>bending</strong> each other on a hot day after they have <span class="term-warm">gained heat</span> and <strong>expanded</strong>.
+    </p>
+
+    <div class="image-grid">
+      <div class="image-slot" data-slot="railway-gaps" data-caption="Gaps in railway tracks for expansion" style="min-height: 180px;">
+        <div class="placeholder-text"><div class="placeholder-icon">🛤️</div>Railway track gaps</div>
+        <div class="upload-overlay">
+          <span class="upload-icon">📤</span>
+          <span class="upload-label">Upload Image</span>
+          <input type="file" accept="image/*" onchange="handleImageUpload(event, 'railway-gaps', 'Gaps in railway tracks for expansion')">
+        </div>
+      </div>
+      <div class="image-slot" data-slot="sagging-lines" data-caption="Sagging electrical lines for contraction" style="min-height: 180px;">
+        <div class="placeholder-text"><div class="placeholder-icon">⚡</div>Sagging electrical lines</div>
+        <div class="upload-overlay">
+          <span class="upload-icon">📤</span>
+          <span class="upload-label">Upload Image</span>
+          <input type="file" accept="image/*" onchange="handleImageUpload(event, 'sagging-lines', 'Sagging electrical lines for contraction')">
+        </div>
+      </div>
+    </div>
+
+    <p class="prose">
+      <strong>Electrical lines:</strong> On the other hand, electrical lines are deliberately made <span class="term">sagging</span> to prevent them from being too tight and <strong>snapping</strong> on a cold day when they <strong>lose heat</strong> and <strong>contract</strong>.
+    </p>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- ==================== SECTION 9: Keywords ==================== -->
+  <section class="notes-section" id="section-9">
+    <h2 class="section-heading">
+      <span class="section-icon">🏷️</span>
+      List of Keywords
+    </h2>
+
+    <p class="prose" style="margin-bottom: var(--space-md);">
+      Click each keyword to reveal it. Try to recall the meaning before clicking!
+    </p>
+
+    <div class="keywords-container" id="keywordsContainer">
+      <!-- Keywords will be populated by JS -->
+    </div>
+
+    <div style="margin-top: var(--space-md);">
+      <button class="admin-btn" onclick="revealAllKeywords()" style="font-size: var(--font-size-sm);">
+        👁️ Reveal All
+      </button>
+      <button class="admin-btn" onclick="hideAllKeywords()" style="font-size: var(--font-size-sm); margin-left: var(--space-sm);">
+        🙈 Hide All
+      </button>
+    </div>
+  </section>
+
+</main>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ========== FIREBASE SDKs ========== -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+
+<script>
+/* ========================================================================
+   FIREBASE INITIALIZATION
+   ======================================================================== */
+firebase.initializeApp({
+  apiKey: "AIzaSyAUSI3Uh28IeqASEp0JhH4QPaVt-O3meBo",
+  authDomain: "mathgen--app.firebaseapp.com",
+  projectId: "mathgen--app",
+  storageBucket: "mathgen--app.firebasestorage.app",
+  messagingSenderId: "165654161198",
+  appId: "1:165654161198:web:16c8bd60eb3a2aa7edbcbf",
+  measurementId: "G-0MWZFG211D"
+});
+
+var db = firebase.firestore();
+var auth = firebase.auth();
+var storage = firebase.storage();
+
+/* ========================================================================
+   CONSTANTS & STATE
+   ======================================================================== */
+var ADMIN_EMAIL = "chungzhikai@gmail.com";
+var FIRESTORE_COLLECTION = "p4-science-heat-images";
+var STORAGE_FOLDER = "p4-science-heat";
+
+var currentUser = null;
+var isAdmin = false;
+
+/* ========================================================================
+   KEYWORDS DATA
+   ======================================================================== */
+var keywordsData = [
+  "Heat flows",
+  "Hotter region",
+  "Cooler region",
+  "Heat conductivity",
+  "Better conductor of heat",
+  "Metals",
+  "Poorer conductor of heat",
+  "Air",
+  "Gain heat",
+  "Expand",
+  "Lose heat",
+  "Contract",
+  "Gap"
+];
+
+/* ========================================================================
+   INITIALIZATION
+   ======================================================================== */
+document.addEventListener('DOMContentLoaded', function() {
+  initKeywords();
+  loadAllImages();
+  setupAuthListener();
+});
+
+/* ========================================================================
+   AUTH FUNCTIONS
+   ======================================================================== */
+function setupAuthListener() {
+  auth.onAuthStateChanged(function(user) {
+    currentUser = user;
+    if (user && user.email === ADMIN_EMAIL) {
+      isAdmin = true;
+      document.body.classList.add('admin-mode');
+      document.getElementById('adminBar').classList.add('visible');
+      document.getElementById('authBtn').innerHTML = '<img src="' + (user.photoURL || '') + '" class="admin-avatar" onerror="this.style.display=\'none\'" /> ' + user.displayName;
+      document.getElementById('authBtn').classList.add('logged-in');
+      showToast('Welcome back, Admin!', 'success');
+    } else if (user) {
+      /* Non-admin user logged in, sign them out of admin mode */
+      isAdmin = false;
+      document.body.classList.remove('admin-mode');
+      document.getElementById('adminBar').classList.remove('visible');
+      document.getElementById('authBtn').innerHTML = '🔑 Admin Login';
+      document.getElementById('authBtn').classList.remove('logged-in');
+      if (user.email !== ADMIN_EMAIL) {
+        showToast('Only the admin can upload images.', 'error');
+        auth.signOut();
+      }
+    } else {
+      isAdmin = false;
+      document.body.classList.remove('admin-mode');
+      document.getElementById('adminBar').classList.remove('visible');
+      document.getElementById('authBtn').innerHTML = '🔑 Admin Login';
+      document.getElementById('authBtn').classList.remove('logged-in');
+    }
+  });
+}
+
+function handleAuth() {
+  if (currentUser && isAdmin) {
+    /* Already logged in as admin — sign out */
+    auth.signOut().then(function() {
+      showToast('Signed out successfully.', 'success');
+    });
+  } else {
+    /* Sign in with Google */
+    var provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ login_hint: ADMIN_EMAIL });
+    auth.signInWithPopup(provider).then(function(result) {
+      if (result.user.email !== ADMIN_EMAIL) {
+        showToast('Access denied. Admin account required.', 'error');
+        auth.signOut();
+      }
+    }).catch(function(error) {
+      console.error('Auth error:', error);
+      showToast('Login failed: ' + error.message, 'error');
+    });
+  }
+}
+
+/* ========================================================================
+   IMAGE UPLOAD
+   ======================================================================== */
+function handleImageUpload(event, slotId, caption) {
+  var file = event.target.files[0];
+  if (!file) return;
+  if (!isAdmin) {
+    showToast('Only admin can upload images.', 'error');
+    return;
+  }
+  if (!file.type.startsWith('image/')) {
+    showToast('Please select an image file.', 'error');
+    return;
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    showToast('Image must be under 10MB.', 'error');
+    return;
+  }
+
+  var slot = document.querySelector('[data-slot="' + slotId + '"]');
+  if (!slot) return;
+
+  /* Show progress */
+  var progressHTML = '<div class="upload-progress" id="progress-' + slotId + '">' +
+    '<div class="progress-bar-container"><div class="progress-bar-fill" id="progressFill-' + slotId + '"></div></div>' +
+    '<span class="progress-text" id="progressText-' + slotId + '">Uploading...</span>' +
+    '</div>';
+  slot.insertAdjacentHTML('beforeend', progressHTML);
+
+  /* Generate unique filename */
+  var timestamp = Date.now();
+  var fileExtension = file.name.split('.').pop();
+  var storagePath = STORAGE_FOLDER + '/' + slotId + '_' + timestamp + '.' + fileExtension;
+  var storageRef = storage.ref(storagePath);
+
+  var uploadTask = storageRef.put(file);
+
+  uploadTask.on('state_changed',
+    function(snapshot) {
+      var progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+      var progressFill = document.getElementById('progressFill-' + slotId);
+      var progressText = document.getElementById('progressText-' + slotId);
+      if (progressFill) progressFill.style.width = progress + '%';
+      if (progressText) progressText.textContent = progress + '%';
+    },
+    function(error) {
+      console.error('Upload error:', error);
+      var progressElement = document.getElementById('progress-' + slotId);
+      if (progressElement) progressElement.remove();
+      showToast('Upload failed: ' + error.message, 'error');
+    },
+    function() {
+      uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+        /* Save to Firestore */
+        db.collection(FIRESTORE_COLLECTION).doc(slotId).set({
+          imageUrl: downloadURL,
+          caption: caption,
+          slotId: slotId,
+          storagePath: storagePath,
+          uploadedBy: currentUser.email,
+          uploadedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(function() {
+          var progressElement = document.getElementById('progress-' + slotId);
+          if (progressElement) progressElement.remove();
+          renderImage(slotId, downloadURL, caption, storagePath);
+          showToast('Image uploaded successfully!', 'success');
+        }).catch(function(error) {
+          console.error('Firestore error:', error);
+          var progressElement = document.getElementById('progress-' + slotId);
+          if (progressElement) progressElement.remove();
+          showToast('Save failed: ' + error.message, 'error');
+        });
+      });
+    }
+  );
+
+  /* Reset the input */
+  event.target.value = '';
+}
+
+/* ========================================================================
+   IMAGE RENDERING
+   ======================================================================== */
+function renderImage(slotId, imageUrl, caption, storagePath) {
+  var slot = document.querySelector('[data-slot="' + slotId + '"]');
+  if (!slot) return;
+
+  /* Clear placeholder */
+  var placeholder = slot.querySelector('.placeholder-text');
+  if (placeholder) placeholder.style.display = 'none';
+
+  /* Remove existing image if any */
+  var existingImg = slot.querySelector('img.slot-image');
+  if (existingImg) existingImg.remove();
+  var existingCaption = slot.querySelector('.image-caption');
+  if (existingCaption) existingCaption.remove();
+  var existingDelete = slot.querySelector('.delete-btn');
+  if (existingDelete) existingDelete.remove();
+
+  /* Add image */
+  var img = document.createElement('img');
+  img.src = imageUrl;
+  img.alt = caption;
+  img.className = 'slot-image';
+  img.style.cssText = 'width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;';
+  slot.insertBefore(img, slot.firstChild);
+
+  /* Add caption */
+  var captionDiv = document.createElement('div');
+  captionDiv.className = 'image-caption';
+  captionDiv.textContent = caption;
+  slot.appendChild(captionDiv);
+
+  /* Add delete button (visible only in admin mode) */
+  var deleteBtn = document.createElement('button');
+  deleteBtn.className = 'delete-btn';
+  deleteBtn.innerHTML = '✕';
+  deleteBtn.title = 'Delete image';
+  deleteBtn.onclick = function(e) {
+    e.stopPropagation();
+    deleteImage(slotId, storagePath);
+  };
+  slot.appendChild(deleteBtn);
+
+  slot.classList.add('has-image');
+  slot.style.position = 'relative';
+}
+
+/* ========================================================================
+   IMAGE DELETION
+   ======================================================================== */
+function deleteImage(slotId, storagePath) {
+  if (!isAdmin) return;
+  if (!confirm('Delete this image?')) return;
+
+  /* Delete from Storage */
+  if (storagePath) {
+    storage.ref(storagePath).delete().catch(function(error) {
+      console.warn('Storage delete error (may not exist):', error);
+    });
+  }
+
+  /* Delete from Firestore */
+  db.collection(FIRESTORE_COLLECTION).doc(slotId).delete().then(function() {
+    /* Reset slot UI */
+    var slot = document.querySelector('[data-slot="' + slotId + '"]');
+    if (slot) {
+      var img = slot.querySelector('img.slot-image');
+      if (img) img.remove();
+      var caption = slot.querySelector('.image-caption');
+      if (caption) caption.remove();
+      var deleteBtn = slot.querySelector('.delete-btn');
+      if (deleteBtn) deleteBtn.remove();
+      var placeholder = slot.querySelector('.placeholder-text');
+      if (placeholder) placeholder.style.display = '';
+      slot.classList.remove('has-image');
+    }
+    showToast('Image deleted.', 'success');
+  }).catch(function(error) {
+    showToast('Delete failed: ' + error.message, 'error');
+  });
+}
+
+/* ========================================================================
+   LOAD ALL IMAGES FROM FIRESTORE
+   ======================================================================== */
+function loadAllImages() {
+  db.collection(FIRESTORE_COLLECTION).get().then(function(querySnapshot) {
+    querySnapshot.forEach(function(doc) {
+      var data = doc.data();
+      if (data.imageUrl && data.slotId) {
+        renderImage(data.slotId, data.imageUrl, data.caption || '', data.storagePath || '');
+      }
+    });
+  }).catch(function(error) {
+    console.error('Error loading images:', error);
+  });
+}
+
+/* ========================================================================
+   KEYWORDS INTERACTIVE
+   ======================================================================== */
+function initKeywords() {
+  var container = document.getElementById('keywordsContainer');
+  keywordsData.forEach(function(keyword, index) {
+    var chip = document.createElement('div');
+    chip.className = 'keyword-chip';
+    chip.dataset.index = index;
+    chip.innerHTML = '<span class="chip-icon">🔒</span><span class="chip-text">Keyword ' + (index + 1) + '</span>';
+    chip.onclick = function() {
+      toggleKeyword(chip, keyword);
+    };
+    container.appendChild(chip);
+  });
+}
+
+function toggleKeyword(chip, keyword) {
+  if (chip.classList.contains('revealed')) {
+    chip.classList.remove('revealed');
+    var index = chip.dataset.index;
+    chip.innerHTML = '<span class="chip-icon">🔒</span><span class="chip-text">Keyword ' + (parseInt(index) + 1) + '</span>';
+  } else {
+    chip.classList.add('revealed');
+    chip.innerHTML = '<span class="chip-icon">✅</span><span class="chip-text">' + keyword + '</span>';
+  }
+}
+
+function revealAllKeywords() {
+  var chips = document.querySelectorAll('.keyword-chip');
+  chips.forEach(function(chip, index) {
+    chip.classList.add('revealed');
+    chip.innerHTML = '<span class="chip-icon">✅</span><span class="chip-text">' + keywordsData[index] + '</span>';
+  });
+}
+
+function hideAllKeywords() {
+  var chips = document.querySelectorAll('.keyword-chip');
+  chips.forEach(function(chip, index) {
+    chip.classList.remove('revealed');
+    chip.innerHTML = '<span class="chip-icon">🔒</span><span class="chip-text">Keyword ' + (index + 1) + '</span>';
+  });
+}
+
+/* ========================================================================
+   TOAST NOTIFICATIONS
+   ======================================================================== */
+function showToast(message, type) {
+  var container = document.getElementById('toastContainer');
+  var toast = document.createElement('div');
+  toast.className = 'toast ' + (type || '');
+  toast.textContent = message;
+  container.appendChild(toast);
+
+  setTimeout(function() {
+    toast.style.animation = 'toastOut 0.3s ease forwards';
+    setTimeout(function() {
+      toast.remove();
+    }, 300);
+  }, 3000);
+}
+
+/* ========================================================================
+   SMOOTH SCROLL FOR TOC
+   ======================================================================== */
+document.querySelectorAll('.toc-list a').forEach(function(link) {
+  link.addEventListener('click', function(e) {
+    e.preventDefault();
+    var targetId = this.getAttribute('href').substring(1);
+    var targetElement = document.getElementById(targetId);
+    if (targetElement) {
+      targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+</script>
+</body>
+</html>
