@@ -1271,7 +1271,7 @@ main {
 @media print {
   @page { size: A4; margin: 15mm 20mm; }
   .polymath-header { position: static; }
-  .header-right, .admin-bar, .print-btn, .admin-btn, .upload-overlay, .delete-btn, .toast-container { display: none !important; }
+  .header-right, .admin-bar, .print-btn, .admin-btn, .upload-overlay, .delete-btn, .toast-container, .modal-overlay, .image-controls { display: none !important; }
   .polymath-logo { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
   body { background: white; }
   .notes-section { page-break-inside: avoid; }
@@ -1279,6 +1279,122 @@ main {
   .keyword-chip { background: #f5f5f5 !important; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
   [data-tooltip] { border-bottom: none !important; }
 }
+
+/* ========== CROP MODAL ========== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+}
+.modal-overlay.visible { display: flex; }
+.modal {
+  position: relative;
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  max-width: 920px;
+  width: 100%;
+  box-shadow: var(--shadow-lg);
+  max-height: 92vh;
+  overflow-y: auto;
+}
+.modal h3 {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  margin-bottom: var(--space-xs);
+  color: var(--text-primary);
+}
+.modal-close {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+}
+.modal-close:hover { background: var(--bg-tertiary); }
+.crop-hint {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-md);
+}
+.crop-canvas-container {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  margin-bottom: var(--space-md);
+  background: #000;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  user-select: none;
+  touch-action: none;
+}
+.crop-canvas {
+  display: block;
+  max-width: 100%;
+  max-height: 60vh;
+  user-select: none;
+  pointer-events: none;
+}
+.crop-selection {
+  position: absolute;
+  border: 2px solid white;
+  box-shadow: 0 0 0 9999px rgba(0,0,0,0.55);
+  cursor: move;
+  box-sizing: border-box;
+}
+.crop-handle {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: var(--accent-base);
+  border: 2px solid white;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+.crop-handle.tl { top: -7px; left: -7px; cursor: nwse-resize; }
+.crop-handle.tr { top: -7px; right: -7px; cursor: nesw-resize; }
+.crop-handle.bl { bottom: -7px; left: -7px; cursor: nesw-resize; }
+.crop-handle.br { bottom: -7px; right: -7px; cursor: nwse-resize; }
+.modal-actions {
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: flex-end;
+  margin-top: var(--space-md);
+  flex-wrap: wrap;
+}
+.modal-btn {
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-medium);
+  background: var(--bg-primary);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+  font-family: inherit;
+}
+.modal-btn:hover { background: var(--bg-secondary); }
+.modal-btn.primary {
+  background: var(--accent-base);
+  color: white;
+  border-color: var(--accent-base);
+}
+.modal-btn.primary:hover { background: var(--accent-deeper); }
 </style>
 </head>
 <body>
@@ -1978,6 +2094,30 @@ main {
   </section>
 
 </main>
+
+<!-- Crop Modal -->
+<div class="modal-overlay" id="cropModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeCropModal()" aria-label="Close">✕</button>
+    <h3>Crop Image</h3>
+    <p class="crop-hint">Drag the box or its corners to choose the crop area.</p>
+    <div style="text-align:center;">
+      <div class="crop-canvas-container" id="cropCanvasContainer">
+        <canvas class="crop-canvas" id="cropCanvas"></canvas>
+        <div class="crop-selection" id="cropSelection">
+          <div class="crop-handle tl" data-handle="tl"></div>
+          <div class="crop-handle tr" data-handle="tr"></div>
+          <div class="crop-handle bl" data-handle="bl"></div>
+          <div class="crop-handle br" data-handle="br"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="modal-btn" onclick="closeCropModal()">Cancel</button>
+      <button type="button" class="modal-btn primary" onclick="applyCrop()">Apply Crop</button>
+    </div>
+  </div>
+</div>
 
 <!-- Toast Container -->
 <div class="toast-container" id="toastContainer"></div>
@@ -2774,6 +2914,16 @@ function buildImageBlock(segmentId, block) {
       };
       controls.appendChild(resetBtn);
 
+      var cropBtn = document.createElement('button');
+      cropBtn.type = 'button';
+      cropBtn.textContent = 'Crop';
+      cropBtn.title = 'Crop image';
+      cropBtn.onclick = function(e) {
+        e.stopPropagation();
+        openCropForBlock(segmentId, block, frame);
+      };
+      controls.appendChild(cropBtn);
+
       var replaceBtn = document.createElement('button');
       replaceBtn.type = 'button';
       replaceBtn.textContent = 'Replace';
@@ -3006,6 +3156,176 @@ document.querySelectorAll('.toc-list a').forEach(function(link) {
       targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   });
+});
+
+/* ========================================================================
+   IMAGE CROP (canvas-based) — applies to segment image blocks
+   ======================================================================== */
+var cropState = { x: 0, y: 0, w: 0, h: 0, img: null, canvasRect: null };
+var currentCropContext = null;
+
+function openCropForBlock(segmentId, block, frameEl) {
+  if (!isAdmin) return;
+  if (!block || !block.imageUrl) return;
+  currentCropContext = { segmentId: segmentId, block: block, frameEl: frameEl };
+  loadCropImage(block.imageUrl);
+}
+
+function loadCropImage(url) {
+  var canvas = document.getElementById('cropCanvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = function() {
+    var maxW = Math.min(window.innerWidth * 0.85, 880);
+    var maxH = window.innerHeight * 0.55;
+    var ratio = Math.min(maxW / img.naturalWidth, maxH / img.naturalHeight, 1);
+    canvas.width = Math.round(img.naturalWidth * ratio);
+    canvas.height = Math.round(img.naturalHeight * ratio);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    cropState.img = img;
+    cropState.canvasRect = { width: canvas.width, height: canvas.height };
+    var container = document.getElementById('cropCanvasContainer');
+    container.style.width = canvas.width + 'px';
+    container.style.height = canvas.height + 'px';
+    var selW = canvas.width * 0.6;
+    var selH = canvas.height * 0.6;
+    cropState.x = (canvas.width - selW) / 2;
+    cropState.y = (canvas.height - selH) / 2;
+    cropState.w = selW;
+    cropState.h = selH;
+    updateCropSelection();
+    document.getElementById('cropModal').classList.add('visible');
+  };
+  img.onerror = function() {
+    showToast('Failed to load image for cropping (possible CORS issue).', 'error');
+    currentCropContext = null;
+  };
+  img.src = url;
+}
+
+function updateCropSelection() {
+  var sel = document.getElementById('cropSelection');
+  if (!sel) return;
+  sel.style.left = cropState.x + 'px';
+  sel.style.top = cropState.y + 'px';
+  sel.style.width = cropState.w + 'px';
+  sel.style.height = cropState.h + 'px';
+}
+
+function closeCropModal() {
+  var m = document.getElementById('cropModal');
+  if (m) m.classList.remove('visible');
+  currentCropContext = null;
+}
+
+function applyCrop() {
+  if (!currentCropContext || !cropState.img) return;
+  var img = cropState.img;
+  var scaleX = img.naturalWidth / cropState.canvasRect.width;
+  var scaleY = img.naturalHeight / cropState.canvasRect.height;
+
+  var srcX = Math.max(0, cropState.x * scaleX);
+  var srcY = Math.max(0, cropState.y * scaleY);
+  var srcW = Math.min(img.naturalWidth - srcX, cropState.w * scaleX);
+  var srcH = Math.min(img.naturalHeight - srcY, cropState.h * scaleY);
+
+  var outCanvas = document.createElement('canvas');
+  outCanvas.width = Math.max(1, Math.round(srcW));
+  outCanvas.height = Math.max(1, Math.round(srcH));
+  var outCtx = outCanvas.getContext('2d');
+  outCtx.drawImage(img, srcX, srcY, srcW, srcH, 0, 0, outCanvas.width, outCanvas.height);
+
+  var ctxRef = currentCropContext;
+  outCanvas.toBlob(function(blob) {
+    if (!blob) {
+      showToast('Crop failed.', 'error');
+      return;
+    }
+    /* Reset pan/zoom on the block so the new crop fills the frame */
+    if (ctxRef.block) {
+      ctxRef.block.offsetX = 50;
+      ctxRef.block.offsetY = 50;
+      ctxRef.block.zoom = 1;
+    }
+    closeCropModal();
+    uploadImageBlockFile(blob, ctxRef.segmentId, ctxRef.block, ctxRef.frameEl);
+  }, 'image/png');
+}
+
+/* Crop selection drag / resize interactions */
+(function setupCropInteractions() {
+  var dragMode = null;
+  var dragStart = null;
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var sel = document.getElementById('cropSelection');
+    if (!sel) return;
+    sel.addEventListener('mousedown', function(e) {
+      if (e.target.classList.contains('crop-handle')) {
+        dragMode = e.target.dataset.handle;
+      } else {
+        dragMode = 'move';
+      }
+      dragStart = {
+        clientX: e.clientX, clientY: e.clientY,
+        x: cropState.x, y: cropState.y, w: cropState.w, h: cropState.h
+      };
+      e.preventDefault();
+      e.stopPropagation();
+    });
+  });
+
+  document.addEventListener('mousemove', function(e) {
+    if (!dragMode || !dragStart || !cropState.canvasRect) return;
+    var dx = e.clientX - dragStart.clientX;
+    var dy = e.clientY - dragStart.clientY;
+    var maxW = cropState.canvasRect.width;
+    var maxH = cropState.canvasRect.height;
+    var nx = dragStart.x, ny = dragStart.y, nw = dragStart.w, nh = dragStart.h;
+
+    if (dragMode === 'move') {
+      nx = Math.max(0, Math.min(maxW - nw, dragStart.x + dx));
+      ny = Math.max(0, Math.min(maxH - nh, dragStart.y + dy));
+    } else {
+      if (dragMode.indexOf('l') !== -1) {
+        nx = Math.max(0, Math.min(dragStart.x + dragStart.w - 20, dragStart.x + dx));
+        nw = dragStart.w - (nx - dragStart.x);
+      }
+      if (dragMode.indexOf('r') !== -1) {
+        nw = Math.max(20, Math.min(maxW - dragStart.x, dragStart.w + dx));
+      }
+      if (dragMode.indexOf('t') !== -1) {
+        ny = Math.max(0, Math.min(dragStart.y + dragStart.h - 20, dragStart.y + dy));
+        nh = dragStart.h - (ny - dragStart.y);
+      }
+      if (dragMode.indexOf('b') !== -1) {
+        nh = Math.max(20, Math.min(maxH - dragStart.y, dragStart.h + dy));
+      }
+    }
+
+    cropState.x = nx; cropState.y = ny; cropState.w = nw; cropState.h = nh;
+    updateCropSelection();
+  });
+
+  document.addEventListener('mouseup', function() {
+    dragMode = null;
+    dragStart = null;
+  });
+})();
+
+/* Close modal on backdrop click or Escape */
+document.addEventListener('DOMContentLoaded', function() {
+  var overlay = document.getElementById('cropModal');
+  if (overlay) {
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) closeCropModal();
+    });
+  }
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeCropModal();
 });
 </script>
 </body>
