@@ -795,6 +795,451 @@ main {
   margin-top: 2px;
 }
 
+/* ========== CUSTOM SEGMENTS & BLOCKS ========== */
+.segments-toolbar {
+  display: none;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+  flex-wrap: wrap;
+  max-width: 720px;
+}
+.admin-mode .segments-toolbar { display: flex; }
+.segments-toolbar button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 14px;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  border: 1px solid var(--border-medium);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.segments-toolbar button:hover {
+  background: var(--accent-bg);
+  border-color: var(--accent-base);
+  color: var(--accent-deeper);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-button-hover);
+}
+.segments-toolbar.primary button {
+  background: var(--accent-base);
+  color: white;
+  border-color: var(--accent-base);
+}
+.segments-toolbar.primary button:hover {
+  background: var(--accent-deeper);
+  border-color: var(--accent-deeper);
+  color: white;
+}
+
+.segments-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  max-width: 720px;
+}
+
+.segment-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  transition: box-shadow var(--transition-fast);
+}
+.admin-mode .segment-card:hover { box-shadow: var(--shadow-md); }
+.segment-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+  gap: var(--space-md);
+}
+.segment-title {
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  color: var(--text-primary);
+  flex: 1;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  outline: none;
+  border: 1px solid transparent;
+  min-width: 0;
+}
+.admin-mode .segment-title {
+  cursor: text;
+}
+.admin-mode .segment-title:hover {
+  background: var(--bg-primary);
+  border-color: var(--border-subtle);
+}
+.admin-mode .segment-title:focus {
+  background: var(--bg-primary);
+  border-color: var(--accent-base);
+}
+.segment-title:empty::before {
+  content: attr(data-placeholder);
+  color: var(--text-tertiary);
+  font-style: italic;
+  font-weight: 500;
+}
+.segment-actions {
+  display: none;
+  gap: var(--space-xs);
+  flex-shrink: 0;
+}
+.admin-mode .segment-actions { display: flex; }
+
+.segment-blocks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.block {
+  position: relative;
+  padding: var(--space-md);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition-fast);
+}
+.admin-mode .block:hover {
+  border-color: var(--accent-light);
+}
+.block-actions {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: none;
+  gap: 4px;
+  z-index: 5;
+}
+.admin-mode .block:hover .block-actions,
+.admin-mode .block:focus-within .block-actions { display: flex; }
+.block-action-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,0.55);
+  color: white;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition-fast);
+}
+.block-action-btn:hover { background: rgba(0,0,0,0.85); }
+.block-action-btn.danger:hover { background: #c62828; }
+
+/* Text block */
+.block-text .block-content {
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+  line-height: 1.75;
+  outline: none;
+  min-height: 1.5em;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+.admin-mode .block-text .block-content {
+  border-radius: var(--radius-sm);
+  padding: 4px 6px;
+}
+.admin-mode .block-text .block-content:focus {
+  background: var(--bg-secondary);
+  box-shadow: inset 0 0 0 1px var(--accent-light);
+}
+.block-text .block-content:empty::before {
+  content: attr(data-placeholder);
+  color: var(--text-tertiary);
+  font-style: italic;
+}
+
+/* Caption block */
+.block-caption {
+  background: var(--accent-bg);
+  border-color: var(--accent-light);
+  padding: 10px var(--space-md);
+}
+.block-caption .block-content {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--accent-deeper);
+  text-align: center;
+  outline: none;
+  font-style: italic;
+  min-height: 1.3em;
+}
+.block-caption .block-content:empty::before {
+  content: attr(data-placeholder);
+  color: var(--accent-base);
+  opacity: 0.6;
+}
+
+/* Divider block */
+.block-divider {
+  padding: var(--space-sm);
+  background: transparent;
+  border: none;
+}
+.block-divider hr {
+  border: none;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--border-medium), transparent);
+  margin: 0;
+}
+.admin-mode .block-divider:hover {
+  border-color: transparent;
+}
+.admin-mode .block-divider:hover hr {
+  background: linear-gradient(90deg, transparent, var(--accent-base), transparent);
+}
+
+/* Flashcard block */
+.block-flashcard {
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+.admin-mode .block-flashcard:hover { border-color: transparent; }
+.flashcard {
+  perspective: 1000px;
+  min-height: 170px;
+  position: relative;
+}
+.flashcard-inner {
+  position: relative;
+  width: 100%;
+  min-height: 170px;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+  cursor: pointer;
+}
+.flashcard.flipped .flashcard-inner {
+  transform: rotateY(180deg);
+}
+.flashcard-face {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+  border-radius: var(--radius-md);
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+.flashcard-face.front {
+  background: linear-gradient(135deg, var(--accent-bg) 0%, #E8EAF6 100%);
+  color: var(--accent-deeper);
+  border: 1px solid var(--accent-light);
+}
+.flashcard-face.back {
+  background: linear-gradient(135deg, var(--heat-warm-bg) 0%, #FFE0B2 100%);
+  color: var(--heat-warm-dark);
+  border: 1px solid #FFCC80;
+  transform: rotateY(180deg);
+}
+.flashcard-text {
+  font-weight: 600;
+  font-size: var(--font-size-base);
+  outline: none;
+  max-width: 90%;
+  line-height: 1.5;
+}
+.admin-mode .flashcard-text {
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+}
+.admin-mode .flashcard-text:focus {
+  background: rgba(255,255,255,0.6);
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+.flashcard-label {
+  position: absolute;
+  top: 8px;
+  left: 12px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.5;
+}
+.flashcard-hint {
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  font-size: 10px;
+  opacity: 0.5;
+  font-weight: 500;
+}
+
+/* Image block */
+.block-image {
+  padding: 0;
+  overflow: visible;
+  background: transparent;
+  border: none;
+}
+.admin-mode .block-image:hover { border-color: transparent; }
+.block-image .block-actions {
+  top: 8px;
+  right: 8px;
+}
+.image-block-frame {
+  position: relative;
+  width: 100%;
+  max-width: 720px;
+  min-width: 180px;
+  min-height: 160px;
+  height: 280px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  user-select: none;
+  outline: none;
+}
+.image-block-frame.empty {
+  border: 2px dashed var(--border-medium);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  min-height: 200px;
+}
+.image-block-frame.empty .empty-message {
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+  padding: var(--space-lg);
+  pointer-events: none;
+  line-height: 1.5;
+}
+.image-block-frame.empty .empty-message .icon {
+  font-size: 2.2rem;
+  display: block;
+  margin-bottom: var(--space-sm);
+  opacity: 0.4;
+}
+.image-block-frame.empty .empty-message small {
+  display: block;
+  margin-top: 6px;
+  opacity: 0.7;
+  font-size: 11px;
+}
+.image-block-frame.focused {
+  outline: 2px solid var(--accent-base);
+  outline-offset: 2px;
+}
+.image-block-frame img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transform-origin: center;
+  pointer-events: none;
+  transition: none;
+}
+.admin-mode .image-block-frame:not(.empty) img {
+  pointer-events: auto;
+  cursor: grab;
+}
+.admin-mode .image-block-frame:not(.empty) img:active {
+  cursor: grabbing;
+}
+.admin-mode .image-block-frame:not(.empty) {
+  resize: both;
+  overflow: hidden;
+}
+.image-block-frame.busy::after {
+  content: 'Uploading...';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.85);
+  color: var(--accent-deeper);
+  font-weight: 700;
+  font-size: var(--font-size-sm);
+  z-index: 20;
+}
+
+.image-controls {
+  display: none;
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  right: 10px;
+  padding: 8px 12px;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  border-radius: var(--radius-sm);
+  gap: var(--space-sm);
+  align-items: center;
+  z-index: 3;
+}
+.admin-mode .image-block-frame:hover .image-controls,
+.admin-mode .image-block-frame.focused .image-controls {
+  display: flex;
+}
+.image-controls .zoom-label {
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+.image-controls input[type="range"] {
+  flex: 1;
+  cursor: pointer;
+  min-width: 60px;
+}
+.image-controls button {
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: var(--accent-base);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.image-controls button:hover { background: var(--accent-deeper); }
+
+.empty-segments-message {
+  text-align: center;
+  padding: var(--space-xl);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+  border: 2px dashed var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--bg-secondary);
+}
+.admin-mode .empty-segments-message::after {
+  content: ' Click "+ New Segment" above to get started.';
+  color: var(--accent-deeper);
+  font-weight: 600;
+}
+
 /* ========== RESPONSIVE ========== */
 @media (max-width: 640px) {
   .toc-list { grid-template-columns: 1fr; }
@@ -805,6 +1250,7 @@ main {
   .polymath-header { flex-wrap: wrap; gap: var(--space-sm); }
   .page-title { font-size: var(--font-size-lg); }
   .state-flow { flex-direction: column; }
+  .image-block-frame { height: 240px; }
 }
 
 /* ========== PRINT ========== */
@@ -825,7 +1271,7 @@ main {
 
 <!-- ========== ADMIN STATUS BAR ========== -->
 <div class="admin-bar" id="adminBar">
-  ✏️ Admin Mode — Click on image areas to upload or replace images
+  ✏️ Admin Mode — Upload images, add custom segments &amp; blocks at the bottom
 </div>
 
 <!-- ========== HEADER ========== -->
@@ -879,6 +1325,7 @@ main {
       <li><a href="#section-7"><span class="toc-num">7</span> Effects of Heat on State</a></li>
       <li><a href="#section-8"><span class="toc-num">8</span> Daily Life Applications</a></li>
       <li><a href="#section-9"><span class="toc-num">9</span> Key Keywords</a></li>
+      <li><a href="#section-segments"><span class="toc-num">10</span> Additional Notes</a></li>
     </ul>
   </div>
 
@@ -1494,6 +1941,28 @@ main {
     </div>
   </section>
 
+  <div class="section-divider"></div>
+
+  <!-- ==================== CUSTOM SEGMENTS ==================== -->
+  <section class="notes-section" id="section-segments">
+    <h2 class="section-heading">
+      <span class="section-icon">📝</span>
+      Additional Notes
+    </h2>
+
+    <p class="prose" style="margin-bottom: var(--space-md);">
+      Extra teacher-added notes, explanations, and flashcards.
+    </p>
+
+    <div class="segments-toolbar primary" id="segmentsToolbar">
+      <button type="button" onclick="addSegment()">+ New Segment</button>
+    </div>
+
+    <div class="segments-container" id="segmentsContainer">
+      <!-- Segments are rendered here by JS -->
+    </div>
+  </section>
+
 </main>
 
 <!-- Toast Container -->
@@ -1529,9 +1998,15 @@ var storage = firebase.storage();
 var ADMIN_EMAIL = "chungzhikai@gmail.com";
 var FIRESTORE_COLLECTION = "p4-science-heat-images";
 var STORAGE_FOLDER = "p4-science-heat";
+var SEGMENTS_COLLECTION = "p4-science-heat-segments";
+var SEGMENTS_STORAGE_FOLDER = "p4-science-heat-segments";
 
 var currentUser = null;
 var isAdmin = false;
+
+/* Segments state: segmentId -> segment data */
+var segmentsState = {};
+var segmentSaveTimers = {};
 
 /* ========================================================================
    KEYWORDS DATA
@@ -1558,6 +2033,7 @@ var keywordsData = [
 document.addEventListener('DOMContentLoaded', function() {
   initKeywords();
   loadAllImages();
+  loadAllSegments();
   setupAuthListener();
 });
 
@@ -1592,6 +2068,8 @@ function setupAuthListener() {
       document.getElementById('authBtn').innerHTML = '🔑 Admin Login';
       document.getElementById('authBtn').classList.remove('logged-in');
     }
+    /* Re-render segments so contenteditable / edit controls match admin state */
+    renderAllSegments();
   });
 }
 
@@ -1793,6 +2271,639 @@ function loadAllImages() {
     });
   }).catch(function(error) {
     console.error('Error loading images:', error);
+  });
+}
+
+/* ========================================================================
+   CUSTOM SEGMENTS & BLOCKS
+   ======================================================================== */
+function genId() {
+  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+  return 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+}
+
+function loadAllSegments() {
+  db.collection(SEGMENTS_COLLECTION).get().then(function(snap) {
+    segmentsState = {};
+    snap.forEach(function(doc) {
+      var data = doc.data();
+      data.id = doc.id;
+      segmentsState[doc.id] = data;
+    });
+    renderAllSegments();
+  }).catch(function(err) {
+    console.error('Error loading segments:', err);
+  });
+}
+
+function saveSegment(segmentId, immediate) {
+  var segment = segmentsState[segmentId];
+  if (!segment) return;
+  if (segmentSaveTimers[segmentId]) {
+    clearTimeout(segmentSaveTimers[segmentId]);
+    segmentSaveTimers[segmentId] = null;
+  }
+  var doSave = function() {
+    var data = {
+      title: segment.title || '',
+      blocks: segment.blocks || [],
+      order: typeof segment.order === 'number' ? segment.order : 0,
+      createdAt: segment.createdAt || Date.now(),
+      updatedAt: Date.now()
+    };
+    db.collection(SEGMENTS_COLLECTION).doc(segmentId).set(data)
+      .catch(function(err) {
+        console.error('saveSegment error:', err);
+        showToast('Save failed: ' + err.message, 'error');
+      });
+  };
+  if (immediate) doSave();
+  else segmentSaveTimers[segmentId] = setTimeout(doSave, 500);
+}
+
+function addSegment() {
+  if (!isAdmin) {
+    showToast('Only admin can edit segments.', 'error');
+    return;
+  }
+  var docRef = db.collection(SEGMENTS_COLLECTION).doc();
+  var id = docRef.id;
+  var maxOrder = 0;
+  Object.keys(segmentsState).forEach(function(k) {
+    if ((segmentsState[k].order || 0) > maxOrder) maxOrder = segmentsState[k].order || 0;
+  });
+  var segment = {
+    id: id,
+    title: '',
+    blocks: [],
+    order: maxOrder + 1,
+    createdAt: Date.now(),
+    updatedAt: Date.now()
+  };
+  segmentsState[id] = segment;
+  saveSegment(id, true);
+  renderAllSegments();
+}
+
+function deleteSegment(segmentId) {
+  if (!isAdmin) return;
+  var segment = segmentsState[segmentId];
+  if (!segment) return;
+  if (!confirm('Delete this segment and all its blocks?')) return;
+
+  /* Delete any image storage files used by this segment */
+  (segment.blocks || []).forEach(function(block) {
+    if (block.type === 'image' && block.storagePath) {
+      storage.ref(block.storagePath).delete().catch(function() {});
+    }
+  });
+
+  db.collection(SEGMENTS_COLLECTION).doc(segmentId).delete().then(function() {
+    delete segmentsState[segmentId];
+    renderAllSegments();
+    showToast('Segment deleted.', 'success');
+  }).catch(function(err) {
+    showToast('Delete failed: ' + err.message, 'error');
+  });
+}
+
+function moveSegment(segmentId, direction) {
+  if (!isAdmin) return;
+  var sorted = Object.values(segmentsState).sort(function(a, b) {
+    return (a.order || 0) - (b.order || 0);
+  });
+  var idx = sorted.findIndex(function(s) { return s.id === segmentId; });
+  if (idx < 0) return;
+  var newIdx = idx + direction;
+  if (newIdx < 0 || newIdx >= sorted.length) return;
+  var a = sorted[idx], b = sorted[newIdx];
+  var tmp = a.order;
+  a.order = b.order;
+  b.order = tmp;
+  saveSegment(a.id, true);
+  saveSegment(b.id, true);
+  renderAllSegments();
+}
+
+function addBlock(segmentId, type) {
+  if (!isAdmin) return;
+  var segment = segmentsState[segmentId];
+  if (!segment) return;
+  var block = { id: genId(), type: type };
+  if (type === 'text') {
+    block.content = '';
+  } else if (type === 'caption') {
+    block.content = '';
+  } else if (type === 'flashcard') {
+    block.front = '';
+    block.back = '';
+  } else if (type === 'image') {
+    block.imageUrl = '';
+    block.storagePath = '';
+    block.width = 600;
+    block.height = 320;
+    block.zoom = 1;
+    block.offsetX = 50;
+    block.offsetY = 50;
+  }
+  /* divider has no extra fields */
+  segment.blocks = segment.blocks || [];
+  segment.blocks.push(block);
+  saveSegment(segmentId, true);
+  renderAllSegments();
+}
+
+function deleteBlock(segmentId, blockId) {
+  if (!isAdmin) return;
+  var segment = segmentsState[segmentId];
+  if (!segment) return;
+  var block = (segment.blocks || []).find(function(b) { return b.id === blockId; });
+  if (block && block.type === 'image' && block.storagePath) {
+    storage.ref(block.storagePath).delete().catch(function() {});
+  }
+  segment.blocks = (segment.blocks || []).filter(function(b) { return b.id !== blockId; });
+  saveSegment(segmentId, true);
+  renderAllSegments();
+}
+
+function moveBlock(segmentId, blockId, direction) {
+  if (!isAdmin) return;
+  var segment = segmentsState[segmentId];
+  if (!segment) return;
+  var blocks = segment.blocks || [];
+  var idx = blocks.findIndex(function(b) { return b.id === blockId; });
+  if (idx < 0) return;
+  var newIdx = idx + direction;
+  if (newIdx < 0 || newIdx >= blocks.length) return;
+  var tmp = blocks[idx];
+  blocks[idx] = blocks[newIdx];
+  blocks[newIdx] = tmp;
+  saveSegment(segmentId, true);
+  renderAllSegments();
+}
+
+function renderAllSegments() {
+  var container = document.getElementById('segmentsContainer');
+  if (!container) return;
+  container.innerHTML = '';
+  var segments = Object.values(segmentsState).sort(function(a, b) {
+    return (a.order || 0) - (b.order || 0);
+  });
+  if (segments.length === 0) {
+    var empty = document.createElement('div');
+    empty.className = 'empty-segments-message';
+    empty.textContent = 'No additional notes yet.';
+    container.appendChild(empty);
+    return;
+  }
+  segments.forEach(function(seg) {
+    container.appendChild(buildSegmentEl(seg));
+  });
+}
+
+function buildSegmentEl(segment) {
+  var card = document.createElement('div');
+  card.className = 'segment-card';
+  card.dataset.segmentId = segment.id;
+
+  /* Header with editable title + actions */
+  var header = document.createElement('div');
+  header.className = 'segment-header';
+
+  var title = document.createElement('div');
+  title.className = 'segment-title';
+  title.textContent = segment.title || '';
+  title.setAttribute('data-placeholder', 'Untitled Segment');
+  if (isAdmin) {
+    title.setAttribute('contenteditable', 'true');
+    title.addEventListener('blur', function() {
+      segment.title = title.textContent.trim();
+      saveSegment(segment.id);
+    });
+    title.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') { e.preventDefault(); title.blur(); }
+    });
+  }
+  header.appendChild(title);
+
+  var actions = document.createElement('div');
+  actions.className = 'segment-actions';
+  var btnUp = document.createElement('button');
+  btnUp.className = 'block-action-btn';
+  btnUp.title = 'Move segment up';
+  btnUp.textContent = '↑';
+  btnUp.onclick = function() { moveSegment(segment.id, -1); };
+  var btnDown = document.createElement('button');
+  btnDown.className = 'block-action-btn';
+  btnDown.title = 'Move segment down';
+  btnDown.textContent = '↓';
+  btnDown.onclick = function() { moveSegment(segment.id, 1); };
+  var btnDel = document.createElement('button');
+  btnDel.className = 'block-action-btn danger';
+  btnDel.title = 'Delete segment';
+  btnDel.textContent = '✕';
+  btnDel.onclick = function() { deleteSegment(segment.id); };
+  actions.appendChild(btnUp);
+  actions.appendChild(btnDown);
+  actions.appendChild(btnDel);
+  header.appendChild(actions);
+
+  card.appendChild(header);
+
+  /* Blocks */
+  var blocksEl = document.createElement('div');
+  blocksEl.className = 'segment-blocks';
+  (segment.blocks || []).forEach(function(block) {
+    blocksEl.appendChild(buildBlockEl(segment.id, block));
+  });
+  card.appendChild(blocksEl);
+
+  /* Block-adding toolbar (admin only via CSS) */
+  var toolbar = document.createElement('div');
+  toolbar.className = 'segments-toolbar';
+  toolbar.style.marginTop = 'var(--space-md)';
+  toolbar.style.marginBottom = '0';
+
+  [
+    { label: '📝 Text', type: 'text' },
+    { label: '🖼️ Image', type: 'image' },
+    { label: '💬 Caption', type: 'caption' },
+    { label: '🎴 Flashcard', type: 'flashcard' },
+    { label: '➖ Divider', type: 'divider' }
+  ].forEach(function(item) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = item.label;
+    b.onclick = function() { addBlock(segment.id, item.type); };
+    toolbar.appendChild(b);
+  });
+
+  card.appendChild(toolbar);
+  return card;
+}
+
+function buildBlockEl(segmentId, block) {
+  var el = document.createElement('div');
+  el.className = 'block block-' + block.type;
+  el.dataset.blockId = block.id;
+
+  /* Per-block actions (reorder + delete) */
+  var actions = document.createElement('div');
+  actions.className = 'block-actions';
+  var up = document.createElement('button');
+  up.className = 'block-action-btn';
+  up.textContent = '↑';
+  up.title = 'Move block up';
+  up.onclick = function(e) { e.stopPropagation(); moveBlock(segmentId, block.id, -1); };
+  var down = document.createElement('button');
+  down.className = 'block-action-btn';
+  down.textContent = '↓';
+  down.title = 'Move block down';
+  down.onclick = function(e) { e.stopPropagation(); moveBlock(segmentId, block.id, 1); };
+  var del = document.createElement('button');
+  del.className = 'block-action-btn danger';
+  del.textContent = '✕';
+  del.title = 'Delete block';
+  del.onclick = function(e) { e.stopPropagation(); deleteBlock(segmentId, block.id); };
+  actions.appendChild(up);
+  actions.appendChild(down);
+  actions.appendChild(del);
+  el.appendChild(actions);
+
+  if (block.type === 'text') {
+    var content = document.createElement('div');
+    content.className = 'block-content';
+    content.textContent = block.content || '';
+    content.setAttribute('data-placeholder', 'Type your text here...');
+    if (isAdmin) {
+      content.setAttribute('contenteditable', 'true');
+      content.addEventListener('blur', function() {
+        block.content = content.textContent;
+        saveSegment(segmentId);
+      });
+    }
+    el.appendChild(content);
+  } else if (block.type === 'caption') {
+    var content2 = document.createElement('div');
+    content2.className = 'block-content';
+    content2.textContent = block.content || '';
+    content2.setAttribute('data-placeholder', 'Image caption...');
+    if (isAdmin) {
+      content2.setAttribute('contenteditable', 'true');
+      content2.addEventListener('blur', function() {
+        block.content = content2.textContent;
+        saveSegment(segmentId);
+      });
+    }
+    el.appendChild(content2);
+  } else if (block.type === 'divider') {
+    var hr = document.createElement('hr');
+    el.appendChild(hr);
+  } else if (block.type === 'flashcard') {
+    el.appendChild(buildFlashcardBlock(segmentId, block));
+  } else if (block.type === 'image') {
+    el.appendChild(buildImageBlock(segmentId, block));
+  }
+
+  return el;
+}
+
+function buildFlashcardBlock(segmentId, block) {
+  var card = document.createElement('div');
+  card.className = 'flashcard';
+
+  var inner = document.createElement('div');
+  inner.className = 'flashcard-inner';
+
+  /* Front face */
+  var front = document.createElement('div');
+  front.className = 'flashcard-face front';
+  var frontLabel = document.createElement('div');
+  frontLabel.className = 'flashcard-label';
+  frontLabel.textContent = 'Question';
+  front.appendChild(frontLabel);
+  var frontText = document.createElement('div');
+  frontText.className = 'flashcard-text';
+  frontText.textContent = block.front || '';
+  frontText.setAttribute('data-placeholder', 'Enter question...');
+  if (isAdmin) {
+    frontText.setAttribute('contenteditable', 'true');
+    frontText.addEventListener('blur', function() {
+      block.front = frontText.textContent;
+      saveSegment(segmentId);
+    });
+    frontText.addEventListener('click', function(e) { e.stopPropagation(); });
+  }
+  front.appendChild(frontText);
+  var frontHint = document.createElement('div');
+  frontHint.className = 'flashcard-hint';
+  frontHint.textContent = 'Click to flip';
+  front.appendChild(frontHint);
+
+  /* Back face */
+  var back = document.createElement('div');
+  back.className = 'flashcard-face back';
+  var backLabel = document.createElement('div');
+  backLabel.className = 'flashcard-label';
+  backLabel.textContent = 'Answer';
+  back.appendChild(backLabel);
+  var backText = document.createElement('div');
+  backText.className = 'flashcard-text';
+  backText.textContent = block.back || '';
+  backText.setAttribute('data-placeholder', 'Enter answer...');
+  if (isAdmin) {
+    backText.setAttribute('contenteditable', 'true');
+    backText.addEventListener('blur', function() {
+      block.back = backText.textContent;
+      saveSegment(segmentId);
+    });
+    backText.addEventListener('click', function(e) { e.stopPropagation(); });
+  }
+  back.appendChild(backText);
+  var backHint = document.createElement('div');
+  backHint.className = 'flashcard-hint';
+  backHint.textContent = 'Click to flip back';
+  back.appendChild(backHint);
+
+  inner.appendChild(front);
+  inner.appendChild(back);
+  card.appendChild(inner);
+
+  card.addEventListener('click', function(e) {
+    /* Don't flip when clicking an editable text field */
+    if (e.target.getAttribute && e.target.getAttribute('contenteditable') === 'true') return;
+    card.classList.toggle('flipped');
+  });
+
+  return card;
+}
+
+function buildImageBlock(segmentId, block) {
+  var frame = document.createElement('div');
+  frame.className = 'image-block-frame';
+  frame.tabIndex = 0;
+  if (block.width) frame.style.width = block.width + 'px';
+  if (block.height) frame.style.height = block.height + 'px';
+
+  if (!block.imageUrl) {
+    frame.classList.add('empty');
+    var msg = document.createElement('div');
+    msg.className = 'empty-message';
+    if (isAdmin) {
+      msg.innerHTML = '<span class="icon">🖼️</span>Click, then paste an image (Ctrl+V / ⌘+V)<small>or click to choose a file</small>';
+    } else {
+      msg.innerHTML = '<span class="icon">🖼️</span>No image';
+    }
+    frame.appendChild(msg);
+
+    if (isAdmin) {
+      var fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'image/*';
+      fileInput.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2;';
+      fileInput.addEventListener('change', function(e) {
+        var f = e.target.files && e.target.files[0];
+        if (f) uploadImageBlockFile(f, segmentId, block, frame);
+      });
+      frame.appendChild(fileInput);
+    }
+  } else {
+    var img = document.createElement('img');
+    img.src = block.imageUrl;
+    img.alt = 'Segment image';
+    img.draggable = false;
+    img.style.transform = 'scale(' + (block.zoom || 1) + ')';
+    img.style.objectPosition = (block.offsetX || 50) + '% ' + (block.offsetY || 50) + '%';
+    frame.appendChild(img);
+
+    if (isAdmin) {
+      /* Controls overlay: zoom slider + replace button */
+      var controls = document.createElement('div');
+      controls.className = 'image-controls';
+
+      var zoomLabel = document.createElement('label');
+      zoomLabel.className = 'zoom-label';
+      zoomLabel.innerHTML = '<span>🔍</span>';
+      var zoomInput = document.createElement('input');
+      zoomInput.type = 'range';
+      zoomInput.min = '1';
+      zoomInput.max = '4';
+      zoomInput.step = '0.05';
+      zoomInput.value = String(block.zoom || 1);
+      zoomLabel.appendChild(zoomInput);
+      controls.appendChild(zoomLabel);
+
+      var resetBtn = document.createElement('button');
+      resetBtn.type = 'button';
+      resetBtn.textContent = 'Reset';
+      resetBtn.title = 'Reset zoom and position';
+      resetBtn.onclick = function(e) {
+        e.stopPropagation();
+        block.zoom = 1;
+        block.offsetX = 50;
+        block.offsetY = 50;
+        img.style.transform = 'scale(1)';
+        img.style.objectPosition = '50% 50%';
+        zoomInput.value = '1';
+        saveSegment(segmentId);
+      };
+      controls.appendChild(resetBtn);
+
+      var replaceBtn = document.createElement('button');
+      replaceBtn.type = 'button';
+      replaceBtn.textContent = 'Replace';
+      replaceBtn.title = 'Replace image';
+      replaceBtn.onclick = function(e) {
+        e.stopPropagation();
+        var fi = document.createElement('input');
+        fi.type = 'file';
+        fi.accept = 'image/*';
+        fi.onchange = function() {
+          var f = fi.files && fi.files[0];
+          if (f) uploadImageBlockFile(f, segmentId, block, frame);
+        };
+        fi.click();
+      };
+      controls.appendChild(replaceBtn);
+
+      frame.appendChild(controls);
+
+      /* Zoom handler */
+      zoomInput.addEventListener('input', function() {
+        block.zoom = parseFloat(zoomInput.value);
+        img.style.transform = 'scale(' + block.zoom + ')';
+      });
+      zoomInput.addEventListener('change', function() { saveSegment(segmentId); });
+      var stopProp = function(e) { e.stopPropagation(); };
+      zoomInput.addEventListener('mousedown', stopProp);
+      zoomInput.addEventListener('click', stopProp);
+      zoomInput.addEventListener('touchstart', stopProp);
+
+      /* Drag to reposition (pan) */
+      img.addEventListener('mousedown', function(e) {
+        if (e.button !== 0) return;
+        e.preventDefault();
+        e.stopPropagation();
+        var startX = e.clientX;
+        var startY = e.clientY;
+        var startOX = block.offsetX || 50;
+        var startOY = block.offsetY || 50;
+        var rect = frame.getBoundingClientRect();
+        var moved = false;
+
+        var onMove = function(ev) {
+          var dx = (ev.clientX - startX) / rect.width * 100;
+          var dy = (ev.clientY - startY) / rect.height * 100;
+          /* Scale drag sensitivity by zoom so panning feels natural */
+          var scale = block.zoom || 1;
+          block.offsetX = Math.max(0, Math.min(100, startOX - dx / scale));
+          block.offsetY = Math.max(0, Math.min(100, startOY - dy / scale));
+          img.style.objectPosition = block.offsetX + '% ' + block.offsetY + '%';
+          moved = true;
+        };
+        var onUp = function() {
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onUp);
+          if (moved) saveSegment(segmentId);
+        };
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      });
+
+      /* Resize observer: persist frame width/height after resize handle drag */
+      var initialResize = true;
+      try {
+        var ro = new ResizeObserver(function(entries) {
+          if (initialResize) { initialResize = false; return; }
+          for (var i = 0; i < entries.length; i++) {
+            var e = entries[i];
+            var w = Math.round(e.contentRect.width);
+            var h = Math.round(e.contentRect.height);
+            if (w > 0 && h > 0 && (block.width !== w || block.height !== h)) {
+              block.width = w;
+              block.height = h;
+              saveSegment(segmentId);
+            }
+          }
+        });
+        ro.observe(frame);
+      } catch (err) {
+        /* ResizeObserver unavailable — ignore */
+      }
+    }
+  }
+
+  /* Click to focus so the frame can receive paste events */
+  frame.addEventListener('click', function() {
+    if (!isAdmin) return;
+    frame.classList.add('focused');
+    frame.focus();
+  });
+  frame.addEventListener('blur', function() {
+    frame.classList.remove('focused');
+  });
+
+  /* Paste image support */
+  frame.addEventListener('paste', function(e) {
+    if (!isAdmin) return;
+    var cd = e.clipboardData || window.clipboardData;
+    if (!cd || !cd.items) return;
+    for (var i = 0; i < cd.items.length; i++) {
+      var item = cd.items[i];
+      if (item.kind === 'file' && item.type.indexOf('image') !== -1) {
+        var file = item.getAsFile();
+        if (file) {
+          e.preventDefault();
+          uploadImageBlockFile(file, segmentId, block, frame);
+          return;
+        }
+      }
+    }
+  });
+
+  return frame;
+}
+
+function uploadImageBlockFile(file, segmentId, block, frameEl) {
+  if (!isAdmin) return;
+  if (!file.type || !file.type.startsWith('image/')) {
+    showToast('Please provide an image file.', 'error');
+    return;
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    showToast('Image must be under 10MB.', 'error');
+    return;
+  }
+
+  if (frameEl) frameEl.classList.add('busy');
+
+  var extPart = (file.name && file.name.indexOf('.') !== -1) ? file.name.split('.').pop() : '';
+  if (!extPart || extPart.length > 5) {
+    /* Pasted images have no filename — derive from mime type */
+    extPart = (file.type.split('/')[1] || 'png').replace(/[^a-z0-9]/gi, '');
+  }
+  var storagePath = SEGMENTS_STORAGE_FOLDER + '/' + segmentId + '_' + block.id + '_' + Date.now() + '.' + extPart;
+  var ref = storage.ref(storagePath);
+
+  ref.put(file).then(function(snap) {
+    return snap.ref.getDownloadURL();
+  }).then(function(url) {
+    /* Remove previous image from storage if any */
+    if (block.storagePath && block.storagePath !== storagePath) {
+      storage.ref(block.storagePath).delete().catch(function() {});
+    }
+    block.imageUrl = url;
+    block.storagePath = storagePath;
+    if (typeof block.zoom !== 'number') block.zoom = 1;
+    if (typeof block.offsetX !== 'number') block.offsetX = 50;
+    if (typeof block.offsetY !== 'number') block.offsetY = 50;
+    saveSegment(segmentId, true);
+    renderAllSegments();
+    showToast('Image added!', 'success');
+  }).catch(function(err) {
+    if (frameEl) frameEl.classList.remove('busy');
+    console.error('Image upload failed:', err);
+    showToast('Upload failed: ' + err.message, 'error');
   });
 }
 
