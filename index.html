@@ -1135,8 +1135,22 @@ main {
 .image-block-frame.empty .empty-message small {
   display: block;
   margin-top: 6px;
-  opacity: 0.7;
+  opacity: 0.9;
   font-size: 11px;
+}
+.image-block-frame.empty .empty-message .empty-choose-btn {
+  pointer-events: auto;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: 11px;
+  color: var(--accent-deeper);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.image-block-frame.empty .empty-message .empty-choose-btn:hover {
+  color: var(--accent-base);
 }
 .image-block-frame.focused {
   outline: 2px solid var(--accent-base);
@@ -2690,23 +2704,34 @@ function buildImageBlock(segmentId, block) {
     var msg = document.createElement('div');
     msg.className = 'empty-message';
     if (isAdmin) {
-      msg.innerHTML = '<span class="icon">🖼️</span>Click, then paste an image (Ctrl+V / ⌘+V)<small>or click to choose a file</small>';
+      var iconSpan = document.createElement('span');
+      iconSpan.className = 'icon';
+      iconSpan.textContent = '🖼️';
+      msg.appendChild(iconSpan);
+      msg.appendChild(document.createTextNode('Click, then paste an image (Ctrl+V / ⌘+V)'));
+      var smallEl = document.createElement('small');
+      var chooseLink = document.createElement('button');
+      chooseLink.type = 'button';
+      chooseLink.className = 'empty-choose-btn';
+      chooseLink.textContent = 'choose a file';
+      chooseLink.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var fi = document.createElement('input');
+        fi.type = 'file';
+        fi.accept = 'image/*';
+        fi.onchange = function() {
+          var f = fi.files && fi.files[0];
+          if (f) uploadImageBlockFile(f, segmentId, block, frame);
+        };
+        fi.click();
+      });
+      smallEl.appendChild(document.createTextNode('or '));
+      smallEl.appendChild(chooseLink);
+      msg.appendChild(smallEl);
     } else {
       msg.innerHTML = '<span class="icon">🖼️</span>No image';
     }
     frame.appendChild(msg);
-
-    if (isAdmin) {
-      var fileInput = document.createElement('input');
-      fileInput.type = 'file';
-      fileInput.accept = 'image/*';
-      fileInput.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2;';
-      fileInput.addEventListener('change', function(e) {
-        var f = e.target.files && e.target.files[0];
-        if (f) uploadImageBlockFile(f, segmentId, block, frame);
-      });
-      frame.appendChild(fileInput);
-    }
   } else {
     var img = document.createElement('img');
     img.src = block.imageUrl;
