@@ -807,17 +807,477 @@ main {
   .state-flow { flex-direction: column; }
 }
 
+/* ========== CUSTOM BLOCKS / SEGMENTS ========== */
+.custom-blocks-section { margin-top: var(--space-2xl); margin-bottom: var(--space-2xl); }
+.custom-blocks-container {
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+.custom-block {
+  position: relative;
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition-base);
+}
+.admin-mode .custom-block {
+  padding: 4px;
+  border: 1px dashed transparent;
+}
+.admin-mode .custom-block:hover,
+.admin-mode .custom-block:focus-within {
+  border-color: var(--accent-light);
+}
+.custom-block-controls {
+  position: absolute;
+  top: -14px;
+  right: 8px;
+  display: none;
+  gap: 4px;
+  z-index: 20;
+}
+.admin-mode .custom-block:hover .custom-block-controls,
+.admin-mode .custom-block:focus-within .custom-block-controls {
+  display: flex;
+}
+.block-control-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--border-medium);
+  background: var(--bg-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--text-secondary);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+  padding: 0;
+}
+.block-control-btn:hover {
+  background: var(--accent-bg);
+  color: var(--accent-deeper);
+  border-color: var(--accent-base);
+}
+.block-control-btn.danger:hover {
+  background: #ffebee;
+  color: #c62828;
+  border-color: #ef9a9a;
+}
+.block-content { outline: none; }
+.custom-block.type-heading .block-content {
+  font-size: var(--font-size-lg);
+  color: var(--text-primary);
+  font-weight: 700;
+  padding: var(--space-sm) 0;
+  line-height: 1.3;
+}
+.custom-block.type-text .block-content {
+  font-size: var(--font-size-md);
+  color: var(--text-secondary);
+  line-height: 1.75;
+  padding: var(--space-sm) 0;
+}
+.custom-block.type-text .block-content strong { color: var(--text-primary); }
+.custom-block.type-caption .block-content {
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+  font-style: italic;
+  text-align: center;
+  padding: var(--space-xs) 0;
+}
+.custom-block.type-divider { padding: var(--space-md) 0; }
+.custom-block.type-divider .block-content {
+  height: 1px;
+  background: var(--border-subtle);
+}
+.admin-mode .custom-block.type-divider { min-height: 20px; }
+
+/* Image block */
+.custom-block.type-image .block-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.image-block-wrapper {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
+  width: 100%;
+  max-width: 720px;
+  min-width: 150px;
+  min-height: 150px;
+  box-sizing: border-box;
+}
+.admin-mode .image-block-wrapper.has-image {
+  resize: both;
+  overflow: auto;
+}
+.image-block-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 50%;
+  display: block;
+  -webkit-user-drag: none;
+}
+.image-block-wrapper.reposition-mode img { cursor: grab; }
+.image-block-wrapper.reposition-mode.is-dragging img { cursor: grabbing; }
+.image-block-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 200px;
+  gap: 8px;
+  color: var(--text-tertiary);
+  background: var(--bg-secondary);
+  border: 2px dashed var(--border-medium);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  padding: var(--space-lg);
+  text-align: center;
+}
+.image-block-empty:hover {
+  background: var(--accent-bg);
+  border-color: var(--accent-base);
+  color: var(--accent-deeper);
+}
+.image-block-empty .empty-icon { font-size: 2.5rem; opacity: 0.5; }
+.image-block-caption {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  font-style: italic;
+  text-align: center;
+  margin-top: var(--space-sm);
+  width: 100%;
+  max-width: 720px;
+}
+
+/* Image tool buttons (crop / reposition / replace) */
+.image-tools {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  display: none;
+  gap: 4px;
+  z-index: 12;
+}
+.admin-mode .image-block-wrapper.has-image .image-tools,
+.admin-mode .image-slot.has-image .image-tools { display: flex; }
+.image-tool-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.95);
+  border: 1px solid var(--border-subtle);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: var(--text-secondary);
+  box-shadow: var(--shadow-sm);
+  padding: 0;
+  transition: all var(--transition-fast);
+}
+.image-tool-btn:hover {
+  background: var(--accent-bg);
+  color: var(--accent-deeper);
+  border-color: var(--accent-base);
+}
+.image-tool-btn.active {
+  background: var(--accent-base);
+  color: white;
+  border-color: var(--accent-base);
+}
+
+/* Flashcard block */
+.custom-block.type-flashcard .block-content {
+  perspective: 1200px;
+  padding: var(--space-sm) 0;
+}
+.flashcard {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  min-height: 200px;
+  transform-style: preserve-3d;
+  transition: transform 0.6s;
+  cursor: pointer;
+}
+.flashcard.flipped { transform: rotateY(180deg); }
+.flashcard-side {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  min-height: 200px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  padding: var(--space-lg);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  box-sizing: border-box;
+}
+.flashcard-front {
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-light);
+  color: var(--accent-deeper);
+  font-weight: 600;
+}
+.flashcard-back {
+  background: var(--heat-warm-bg);
+  border: 1px solid #ffcc80;
+  color: var(--heat-warm-dark);
+  transform: rotateY(180deg);
+}
+.flashcard-label {
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: var(--space-sm);
+  opacity: 0.7;
+}
+.flashcard-text {
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+  outline: none;
+  width: 100%;
+}
+.flashcard-text:focus {
+  background: rgba(255,255,255,0.4);
+  border-radius: 4px;
+}
+
+/* Add block button */
+.add-block-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px var(--space-lg);
+  background: var(--bg-secondary);
+  color: var(--accent-deeper);
+  border: 2px dashed var(--accent-base);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  max-width: 720px;
+  width: 100%;
+  margin-top: var(--space-md);
+  font-family: inherit;
+}
+.admin-mode .add-block-btn { display: flex; }
+.add-block-btn:hover {
+  background: var(--accent-base);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-button-hover);
+}
+
+/* Modals */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+}
+.modal-overlay.visible { display: flex; }
+.modal {
+  position: relative;
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  max-width: 520px;
+  width: 100%;
+  box-shadow: var(--shadow-lg);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal h3 {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  margin-bottom: var(--space-md);
+  color: var(--text-primary);
+}
+.modal-close {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+}
+.modal-close:hover { background: var(--bg-tertiary); }
+.block-type-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-sm);
+}
+.block-type-option {
+  padding: var(--space-md);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-align: center;
+  transition: all var(--transition-fast);
+  background: var(--bg-secondary);
+  user-select: none;
+}
+.block-type-option:hover {
+  background: var(--accent-bg);
+  border-color: var(--accent-base);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-button-hover);
+}
+.block-type-icon { font-size: 1.6rem; margin-bottom: 6px; }
+.block-type-label {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Crop modal */
+.crop-modal { max-width: 900px; padding: var(--space-lg); }
+.crop-canvas-container {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  margin-bottom: var(--space-md);
+  background: #000;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  user-select: none;
+  touch-action: none;
+}
+.crop-canvas {
+  display: block;
+  max-width: 100%;
+  max-height: 60vh;
+  user-select: none;
+  pointer-events: none;
+}
+.crop-selection {
+  position: absolute;
+  border: 2px solid white;
+  box-shadow: 0 0 0 9999px rgba(0,0,0,0.55);
+  cursor: move;
+  box-sizing: border-box;
+}
+.crop-handle {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: var(--accent-base);
+  border: 2px solid white;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+.crop-handle.tl { top: -7px; left: -7px; cursor: nwse-resize; }
+.crop-handle.tr { top: -7px; right: -7px; cursor: nesw-resize; }
+.crop-handle.bl { bottom: -7px; left: -7px; cursor: nesw-resize; }
+.crop-handle.br { bottom: -7px; right: -7px; cursor: nwse-resize; }
+.modal-actions {
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: flex-end;
+  margin-top: var(--space-md);
+  flex-wrap: wrap;
+}
+.modal-btn {
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-medium);
+  background: var(--bg-primary);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+  font-family: inherit;
+}
+.modal-btn:hover { background: var(--bg-secondary); }
+.modal-btn.primary {
+  background: var(--accent-base);
+  color: white;
+  border-color: var(--accent-base);
+}
+.modal-btn.primary:hover { background: var(--accent-deeper); }
+
+/* Paste drop indicator */
+.paste-active {
+  outline: 3px solid var(--accent-base) !important;
+  outline-offset: 3px;
+}
+
+/* Contenteditable hover/focus */
+.admin-mode [contenteditable="true"]:hover {
+  background: rgba(30, 136, 229, 0.05);
+  border-radius: 4px;
+}
+.admin-mode [contenteditable="true"]:focus {
+  background: rgba(30, 136, 229, 0.08);
+  border-radius: 4px;
+  box-shadow: 0 0 0 2px var(--accent-light);
+}
+
+/* Reposition/paste hint overlay */
+.image-hint {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.75);
+  color: white;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  pointer-events: none;
+  z-index: 15;
+  white-space: nowrap;
+}
+
 /* ========== PRINT ========== */
 @media print {
   @page { size: A4; margin: 15mm 20mm; }
   .polymath-header { position: static; }
-  .header-right, .admin-bar, .print-btn, .admin-btn, .upload-overlay, .delete-btn, .toast-container { display: none !important; }
+  .header-right, .admin-bar, .print-btn, .admin-btn, .upload-overlay, .delete-btn, .toast-container, .add-block-btn, .custom-block-controls, .image-tools, .modal-overlay { display: none !important; }
   .polymath-logo { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
   body { background: white; }
   .notes-section { page-break-inside: avoid; }
   .takeaway, .key-question { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
   .keyword-chip { background: #f5f5f5 !important; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
   [data-tooltip] { border-bottom: none !important; }
+  .custom-block { border: none !important; padding: 0 !important; }
+  .image-block-wrapper { resize: none !important; }
 }
 </style>
 </head>
@@ -1494,7 +1954,84 @@ main {
     </div>
   </section>
 
+  <div class="section-divider"></div>
+
+  <!-- ==================== CUSTOM BLOCKS / SEGMENTS ==================== -->
+  <section class="notes-section custom-blocks-section" id="section-custom">
+    <h2 class="section-heading">
+      <span class="section-icon">✨</span>
+      Additional Content
+    </h2>
+    <div class="custom-blocks-container" id="customBlocksContainer"></div>
+    <button type="button" class="add-block-btn" onclick="openBlockPicker()">
+      ➕ Add Block
+    </button>
+  </section>
+
 </main>
+
+<!-- Block Picker Modal -->
+<div class="modal-overlay" id="blockPickerModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeBlockPicker()" aria-label="Close">✕</button>
+    <h3>Add a Block</h3>
+    <p style="font-size: var(--font-size-sm); color: var(--text-secondary); margin-bottom: var(--space-md);">
+      Choose a block type to add to your page.
+    </p>
+    <div class="block-type-grid">
+      <div class="block-type-option" onclick="addBlock('heading')">
+        <div class="block-type-icon">📝</div>
+        <div class="block-type-label">Heading</div>
+      </div>
+      <div class="block-type-option" onclick="addBlock('text')">
+        <div class="block-type-icon">¶</div>
+        <div class="block-type-label">Text</div>
+      </div>
+      <div class="block-type-option" onclick="addBlock('image')">
+        <div class="block-type-icon">🖼️</div>
+        <div class="block-type-label">Image</div>
+      </div>
+      <div class="block-type-option" onclick="addBlock('caption')">
+        <div class="block-type-icon">💬</div>
+        <div class="block-type-label">Caption</div>
+      </div>
+      <div class="block-type-option" onclick="addBlock('flashcard')">
+        <div class="block-type-icon">🃏</div>
+        <div class="block-type-label">Flashcard</div>
+      </div>
+      <div class="block-type-option" onclick="addBlock('divider')">
+        <div class="block-type-icon">➖</div>
+        <div class="block-type-label">Divider</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Crop Modal -->
+<div class="modal-overlay" id="cropModal">
+  <div class="modal crop-modal">
+    <button class="modal-close" onclick="closeCropModal()" aria-label="Close">✕</button>
+    <h3>Crop Image</h3>
+    <p style="font-size: var(--font-size-sm); color: var(--text-secondary); margin-bottom: var(--space-md);">
+      Drag the box or its corners to select the crop area.
+    </p>
+    <div style="text-align:center;">
+      <div class="crop-canvas-container" id="cropCanvasContainer">
+        <canvas class="crop-canvas" id="cropCanvas"></canvas>
+        <div class="crop-selection" id="cropSelection">
+          <div class="crop-handle tl" data-handle="tl"></div>
+          <div class="crop-handle tr" data-handle="tr"></div>
+          <div class="crop-handle bl" data-handle="bl"></div>
+          <div class="crop-handle br" data-handle="br"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="modal-btn" onclick="closeCropModal()">Cancel</button>
+      <button type="button" class="modal-btn primary" onclick="applyCrop()">Apply Crop</button>
+    </div>
+  </div>
+</div>
 
 <!-- Toast Container -->
 <div class="toast-container" id="toastContainer"></div>
@@ -1558,7 +2095,12 @@ var keywordsData = [
 document.addEventListener('DOMContentLoaded', function() {
   initKeywords();
   loadAllImages();
+  loadBlocks();
   setupAuthListener();
+  setupSlotHoverTracking();
+  setupGlobalPasteHandler();
+  setupCropInteractions();
+  setupModalBackdropClose();
 });
 
 /* ========================================================================
@@ -1574,6 +2116,7 @@ function setupAuthListener() {
       document.getElementById('authBtn').innerHTML = '<img src="' + (user.photoURL || '') + '" class="admin-avatar" onerror="this.style.display=\'none\'" /> ' + user.displayName;
       document.getElementById('authBtn').classList.add('logged-in');
       showToast('Welcome back, Admin!', 'success');
+      renderAllBlocks();
     } else if (user) {
       /* Non-admin user logged in, sign them out of admin mode */
       isAdmin = false;
@@ -1581,6 +2124,7 @@ function setupAuthListener() {
       document.getElementById('adminBar').classList.remove('visible');
       document.getElementById('authBtn').innerHTML = '🔑 Admin Login';
       document.getElementById('authBtn').classList.remove('logged-in');
+      renderAllBlocks();
       if (user.email !== ADMIN_EMAIL) {
         showToast('Only the admin can upload images.', 'error');
         auth.signOut();
@@ -1591,6 +2135,7 @@ function setupAuthListener() {
       document.getElementById('adminBar').classList.remove('visible');
       document.getElementById('authBtn').innerHTML = '🔑 Admin Login';
       document.getElementById('authBtn').classList.remove('logged-in');
+      renderAllBlocks();
     }
   });
 }
@@ -1676,12 +2221,13 @@ function handleImageUpload(event, slotId, caption) {
           caption: caption,
           slotId: slotId,
           storagePath: storagePath,
+          objectPosition: '50% 50%',
           uploadedBy: currentUser.email,
           uploadedAt: firebase.firestore.FieldValue.serverTimestamp()
         }).then(function() {
           var progressElement = document.getElementById('progress-' + slotId);
           if (progressElement) progressElement.remove();
-          renderImage(slotId, downloadURL, caption, storagePath);
+          renderImage(slotId, downloadURL, caption, storagePath, '50% 50%');
           showToast('Image uploaded successfully!', 'success');
         }).catch(function(error) {
           console.error('Firestore error:', error);
@@ -1700,7 +2246,7 @@ function handleImageUpload(event, slotId, caption) {
 /* ========================================================================
    IMAGE RENDERING
    ======================================================================== */
-function renderImage(slotId, imageUrl, caption, storagePath) {
+function renderImage(slotId, imageUrl, caption, storagePath, objectPosition) {
   var slot = document.querySelector('[data-slot="' + slotId + '"]');
   if (!slot) return;
 
@@ -1715,13 +2261,16 @@ function renderImage(slotId, imageUrl, caption, storagePath) {
   if (existingCaption) existingCaption.remove();
   var existingDelete = slot.querySelector('.delete-btn');
   if (existingDelete) existingDelete.remove();
+  var existingTools = slot.querySelector('.image-tools');
+  if (existingTools) existingTools.remove();
 
   /* Add image */
   var img = document.createElement('img');
   img.src = imageUrl;
   img.alt = caption;
   img.className = 'slot-image';
-  img.style.cssText = 'width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;';
+  img.draggable = false;
+  img.style.cssText = 'width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;object-position:' + (objectPosition || '50% 50%') + ';';
   slot.insertBefore(img, slot.firstChild);
 
   /* Add caption */
@@ -1729,6 +2278,14 @@ function renderImage(slotId, imageUrl, caption, storagePath) {
   captionDiv.className = 'image-caption';
   captionDiv.textContent = caption;
   slot.appendChild(captionDiv);
+
+  /* Add tools overlay (crop / reposition) */
+  var tools = document.createElement('div');
+  tools.className = 'image-tools';
+  tools.innerHTML =
+    '<button type="button" class="image-tool-btn" title="Reposition image" onclick="event.stopPropagation(); toggleReposition(this)">✥</button>' +
+    '<button type="button" class="image-tool-btn" title="Crop image" onclick="event.stopPropagation(); openCropForSlot(\'' + slotId + '\')">✂</button>';
+  slot.appendChild(tools);
 
   /* Add delete button (visible only in admin mode) */
   var deleteBtn = document.createElement('button');
@@ -1743,6 +2300,9 @@ function renderImage(slotId, imageUrl, caption, storagePath) {
 
   slot.classList.add('has-image');
   slot.style.position = 'relative';
+
+  /* Setup reposition drag on the image */
+  setupSlotReposition(img, slot, slotId);
 }
 
 /* ========================================================================
@@ -1788,7 +2348,7 @@ function loadAllImages() {
     querySnapshot.forEach(function(doc) {
       var data = doc.data();
       if (data.imageUrl && data.slotId) {
-        renderImage(data.slotId, data.imageUrl, data.caption || '', data.storagePath || '');
+        renderImage(data.slotId, data.imageUrl, data.caption || '', data.storagePath || '', data.objectPosition || '50% 50%');
       }
     });
   }).catch(function(error) {
@@ -1871,6 +2431,902 @@ document.querySelectorAll('.toc-list a').forEach(function(link) {
     }
   });
 });
+
+/* ========================================================================
+   CUSTOM BLOCKS / SEGMENTS
+   ======================================================================== */
+var SEGMENTS_COLLECTION = "p4-science-heat-segments";
+var SEGMENTS_STORAGE_FOLDER = "p4-science-heat-segments";
+
+var blocks = []; // cache of blocks sorted by order
+var activePasteSlotId = null;
+var activePasteBlockId = null;
+var currentCropContext = null;
+var debounceTimers = {};
+
+function debounce(key, fn, delay) {
+  if (debounceTimers[key]) clearTimeout(debounceTimers[key]);
+  debounceTimers[key] = setTimeout(fn, delay);
+}
+
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s).replace(/[&<>"']/g, function(c) {
+    return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+  });
+}
+
+/* ---------- LOAD BLOCKS ---------- */
+function loadBlocks() {
+  db.collection(SEGMENTS_COLLECTION).orderBy('order').get().then(function(snap) {
+    blocks = [];
+    snap.forEach(function(doc) {
+      var data = doc.data();
+      data._id = doc.id;
+      blocks.push(data);
+    });
+    renderAllBlocks();
+  }).catch(function(err) {
+    console.error('Error loading blocks:', err);
+  });
+}
+
+/* ---------- ADD BLOCK ---------- */
+function addBlock(type) {
+  if (!isAdmin) {
+    showToast('Only admin can add blocks.', 'error');
+    return;
+  }
+  var maxOrder = blocks.reduce(function(m, b) { return Math.max(m, b.order || 0); }, 0);
+  var newBlock = {
+    type: type,
+    order: maxOrder + 10,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  switch (type) {
+    case 'heading':
+      newBlock.content = 'New Heading';
+      break;
+    case 'text':
+      newBlock.content = 'Click to edit this text. You can write paragraphs here.';
+      break;
+    case 'caption':
+      newBlock.content = 'Add a caption here';
+      break;
+    case 'flashcard':
+      newBlock.flashcardFront = 'Click to edit the question';
+      newBlock.flashcardBack = 'Click to edit the answer';
+      break;
+    case 'image':
+      newBlock.imageUrl = '';
+      newBlock.width = 600;
+      newBlock.height = 400;
+      newBlock.objectPosition = '50% 50%';
+      newBlock.caption = '';
+      break;
+    case 'divider':
+      break;
+  }
+
+  db.collection(SEGMENTS_COLLECTION).add(newBlock).then(function(ref) {
+    newBlock._id = ref.id;
+    blocks.push(newBlock);
+    blocks.sort(function(a, b) { return (a.order || 0) - (b.order || 0); });
+    renderAllBlocks();
+    closeBlockPicker();
+    showToast('Block added!', 'success');
+  }).catch(function(err) {
+    console.error(err);
+    showToast('Failed to add block: ' + err.message, 'error');
+  });
+}
+
+/* ---------- UPDATE BLOCK ---------- */
+function updateBlock(id, updates) {
+  if (!isAdmin) return;
+  updates.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+  var block = blocks.find(function(b) { return b._id === id; });
+  if (block) {
+    Object.keys(updates).forEach(function(k) {
+      if (k !== 'updatedAt') block[k] = updates[k];
+    });
+  }
+  return db.collection(SEGMENTS_COLLECTION).doc(id).update(updates).catch(function(err) {
+    console.error('Update error:', err);
+    showToast('Save failed: ' + err.message, 'error');
+  });
+}
+
+/* ---------- DELETE BLOCK ---------- */
+function deleteBlock(id) {
+  if (!isAdmin) return;
+  if (!confirm('Delete this block?')) return;
+  var block = blocks.find(function(b) { return b._id === id; });
+  if (block && block.storagePath) {
+    storage.ref(block.storagePath).delete().catch(function(e) {
+      console.warn('Storage delete error:', e);
+    });
+  }
+  db.collection(SEGMENTS_COLLECTION).doc(id).delete().then(function() {
+    blocks = blocks.filter(function(b) { return b._id !== id; });
+    renderAllBlocks();
+    showToast('Block deleted.', 'success');
+  }).catch(function(err) {
+    showToast('Delete failed: ' + err.message, 'error');
+  });
+}
+
+/* ---------- REORDER BLOCKS ---------- */
+function moveBlock(id, direction) {
+  if (!isAdmin) return;
+  var idx = -1;
+  for (var i = 0; i < blocks.length; i++) {
+    if (blocks[i]._id === id) { idx = i; break; }
+  }
+  if (idx === -1) return;
+  var swapIdx = direction === 'up' ? idx - 1 : idx + 1;
+  if (swapIdx < 0 || swapIdx >= blocks.length) return;
+
+  var a = blocks[idx];
+  var b = blocks[swapIdx];
+  var tmp = a.order || 0;
+  a.order = b.order || 0;
+  b.order = tmp;
+  // Make sure they differ
+  if (a.order === b.order) {
+    if (direction === 'up') a.order = b.order - 5;
+    else a.order = b.order + 5;
+  }
+
+  blocks.sort(function(x, y) { return (x.order || 0) - (y.order || 0); });
+  renderAllBlocks();
+
+  db.collection(SEGMENTS_COLLECTION).doc(a._id).update({ order: a.order });
+  db.collection(SEGMENTS_COLLECTION).doc(b._id).update({ order: b.order });
+}
+
+/* ---------- RENDER ALL BLOCKS ---------- */
+function renderAllBlocks() {
+  var container = document.getElementById('customBlocksContainer');
+  if (!container) return;
+  container.innerHTML = '';
+  blocks.forEach(function(block) {
+    container.appendChild(createBlockElement(block));
+  });
+}
+
+/* ---------- CREATE BLOCK ELEMENT ---------- */
+function createBlockElement(block) {
+  var wrapper = document.createElement('div');
+  wrapper.className = 'custom-block type-' + block.type;
+  wrapper.dataset.blockId = block._id;
+
+  var controls = document.createElement('div');
+  controls.className = 'custom-block-controls';
+  controls.innerHTML =
+    '<button type="button" class="block-control-btn" title="Move up" onclick="moveBlock(\'' + block._id + '\', \'up\')">↑</button>' +
+    '<button type="button" class="block-control-btn" title="Move down" onclick="moveBlock(\'' + block._id + '\', \'down\')">↓</button>' +
+    '<button type="button" class="block-control-btn danger" title="Delete" onclick="deleteBlock(\'' + block._id + '\')">✕</button>';
+  wrapper.appendChild(controls);
+
+  var content = document.createElement('div');
+  content.className = 'block-content';
+  wrapper.appendChild(content);
+
+  switch (block.type) {
+    case 'heading':
+    case 'text':
+    case 'caption':
+      renderTextBlock(content, block);
+      break;
+    case 'divider':
+      break;
+    case 'image':
+      renderImageBlock(wrapper, content, block);
+      break;
+    case 'flashcard':
+      renderFlashcardBlock(content, block);
+      break;
+  }
+
+  return wrapper;
+}
+
+function renderTextBlock(content, block) {
+  content.contentEditable = isAdmin ? 'true' : 'false';
+  content.innerHTML = block.content || '';
+  content.addEventListener('blur', function() {
+    if (!isAdmin) return;
+    var html = content.innerHTML;
+    if (html !== block.content) {
+      block.content = html;
+      updateBlock(block._id, { content: html });
+    }
+  });
+  content.addEventListener('paste', function(e) {
+    var items = (e.clipboardData || window.clipboardData).items;
+    if (items) {
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          // Let global paste handler take over for images
+          return;
+        }
+      }
+    }
+    e.preventDefault();
+    var text = (e.clipboardData || window.clipboardData).getData('text');
+    document.execCommand('insertText', false, text);
+  });
+}
+
+function renderImageBlock(wrapper, content, block) {
+  if (block.imageUrl) {
+    var imgWrapper = document.createElement('div');
+    imgWrapper.className = 'image-block-wrapper has-image';
+    imgWrapper.style.width = (block.width || 600) + 'px';
+    imgWrapper.style.height = (block.height || 400) + 'px';
+    imgWrapper.dataset.blockId = block._id;
+
+    var img = document.createElement('img');
+    img.src = block.imageUrl;
+    img.alt = block.caption || 'Custom image block';
+    img.style.objectPosition = block.objectPosition || '50% 50%';
+    img.draggable = false;
+    imgWrapper.appendChild(img);
+
+    var tools = document.createElement('div');
+    tools.className = 'image-tools';
+    tools.innerHTML =
+      '<button type="button" class="image-tool-btn" title="Reposition (drag image)" onclick="event.stopPropagation(); toggleReposition(this)">✥</button>' +
+      '<button type="button" class="image-tool-btn" title="Crop image" onclick="event.stopPropagation(); openCropForBlock(\'' + block._id + '\')">✂</button>' +
+      '<button type="button" class="image-tool-btn" title="Replace image" onclick="event.stopPropagation(); triggerImageInputForBlock(\'' + block._id + '\')">⟳</button>';
+    imgWrapper.appendChild(tools);
+
+    // Track hover for paste target
+    imgWrapper.addEventListener('mouseenter', function() { activePasteBlockId = block._id; });
+    imgWrapper.addEventListener('mouseleave', function() {
+      if (activePasteBlockId === block._id) activePasteBlockId = null;
+    });
+
+    content.appendChild(imgWrapper);
+
+    // Caption below image
+    var captionEl = document.createElement('div');
+    captionEl.className = 'image-block-caption';
+    captionEl.contentEditable = isAdmin ? 'true' : 'false';
+    captionEl.textContent = block.caption || (isAdmin ? 'Add caption...' : '');
+    captionEl.addEventListener('focus', function() {
+      if (captionEl.textContent === 'Add caption...') captionEl.textContent = '';
+    });
+    captionEl.addEventListener('blur', function() {
+      if (!isAdmin) return;
+      var text = captionEl.textContent.trim();
+      if (text !== (block.caption || '')) {
+        block.caption = text;
+        updateBlock(block._id, { caption: text });
+      }
+      if (!text && isAdmin) captionEl.textContent = 'Add caption...';
+    });
+    content.appendChild(captionEl);
+
+    // Observe wrapper resize in admin mode
+    if (isAdmin && typeof ResizeObserver !== 'undefined') {
+      var ro = new ResizeObserver(function(entries) {
+        entries.forEach(function(entry) {
+          var w = Math.round(entry.contentRect.width);
+          var h = Math.round(entry.contentRect.height);
+          if (w !== block.width || h !== block.height) {
+            block.width = w;
+            block.height = h;
+            debounce('resize-' + block._id, function() {
+              updateBlock(block._id, { width: w, height: h });
+            }, 500);
+          }
+        });
+      });
+      ro.observe(imgWrapper);
+    }
+
+    setupImageReposition(img, imgWrapper, block);
+  } else {
+    var empty = document.createElement('div');
+    empty.className = 'image-block-empty';
+    empty.innerHTML =
+      '<div class="empty-icon">🖼️</div>' +
+      '<div><strong>Click to upload image</strong></div>' +
+      '<div style="font-size: var(--font-size-xs);">or paste (Ctrl+V / ⌘+V) or drag &amp; drop</div>';
+    empty.onclick = function() {
+      triggerImageInputForBlock(block._id);
+    };
+    empty.ondragover = function(e) {
+      e.preventDefault();
+      empty.classList.add('paste-active');
+    };
+    empty.ondragleave = function() {
+      empty.classList.remove('paste-active');
+    };
+    empty.ondrop = function(e) {
+      e.preventDefault();
+      empty.classList.remove('paste-active');
+      var file = e.dataTransfer.files[0];
+      if (file && file.type.indexOf('image/') === 0) {
+        uploadImageForBlock(block._id, file, file.name);
+      }
+    };
+    empty.addEventListener('mouseenter', function() { activePasteBlockId = block._id; });
+    empty.addEventListener('mouseleave', function() {
+      if (activePasteBlockId === block._id) activePasteBlockId = null;
+    });
+    content.appendChild(empty);
+  }
+}
+
+function renderFlashcardBlock(content, block) {
+  var card = document.createElement('div');
+  card.className = 'flashcard';
+
+  var front = document.createElement('div');
+  front.className = 'flashcard-side flashcard-front';
+  var frontLabel = document.createElement('div');
+  frontLabel.className = 'flashcard-label';
+  frontLabel.textContent = 'Question';
+  var frontText = document.createElement('div');
+  frontText.className = 'flashcard-text';
+  frontText.contentEditable = isAdmin ? 'true' : 'false';
+  frontText.textContent = block.flashcardFront || '';
+  frontText.addEventListener('blur', function() {
+    if (!isAdmin) return;
+    var text = frontText.textContent;
+    if (text !== block.flashcardFront) {
+      block.flashcardFront = text;
+      updateBlock(block._id, { flashcardFront: text });
+    }
+  });
+  frontText.addEventListener('click', function(e) {
+    if (isAdmin) e.stopPropagation();
+  });
+  front.appendChild(frontLabel);
+  front.appendChild(frontText);
+
+  var back = document.createElement('div');
+  back.className = 'flashcard-side flashcard-back';
+  var backLabel = document.createElement('div');
+  backLabel.className = 'flashcard-label';
+  backLabel.textContent = 'Answer';
+  var backText = document.createElement('div');
+  backText.className = 'flashcard-text';
+  backText.contentEditable = isAdmin ? 'true' : 'false';
+  backText.textContent = block.flashcardBack || '';
+  backText.addEventListener('blur', function() {
+    if (!isAdmin) return;
+    var text = backText.textContent;
+    if (text !== block.flashcardBack) {
+      block.flashcardBack = text;
+      updateBlock(block._id, { flashcardBack: text });
+    }
+  });
+  backText.addEventListener('click', function(e) {
+    if (isAdmin) e.stopPropagation();
+  });
+  back.appendChild(backLabel);
+  back.appendChild(backText);
+
+  card.appendChild(front);
+  card.appendChild(back);
+
+  card.addEventListener('click', function(e) {
+    if (e.target.isContentEditable) return;
+    card.classList.toggle('flipped');
+  });
+
+  content.appendChild(card);
+}
+
+/* ---------- BLOCK PICKER MODAL ---------- */
+function openBlockPicker() {
+  if (!isAdmin) {
+    showToast('Only admin can add blocks.', 'error');
+    return;
+  }
+  document.getElementById('blockPickerModal').classList.add('visible');
+}
+function closeBlockPicker() {
+  document.getElementById('blockPickerModal').classList.remove('visible');
+}
+
+/* ---------- IMAGE UPLOAD FOR BLOCK ---------- */
+function triggerImageInputForBlock(blockId) {
+  if (!isAdmin) return;
+  var input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = function(e) {
+    var file = e.target.files[0];
+    if (file) uploadImageForBlock(blockId, file, file.name);
+  };
+  input.click();
+}
+
+function uploadImageForBlock(blockId, fileOrBlob, fileName) {
+  if (!isAdmin) {
+    showToast('Only admin can upload images.', 'error');
+    return;
+  }
+  var file = fileOrBlob;
+  if (!file.type || file.type.indexOf('image/') !== 0) {
+    showToast('Please provide an image.', 'error');
+    return;
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    showToast('Image must be under 10MB.', 'error');
+    return;
+  }
+
+  var timestamp = Date.now();
+  var ext = (fileName && fileName.indexOf('.') !== -1) ? fileName.split('.').pop() : ((file.type.split('/')[1] || 'png').split('+')[0]);
+  var storagePath = SEGMENTS_STORAGE_FOLDER + '/block_' + blockId + '_' + timestamp + '.' + ext;
+  var storageRef = storage.ref(storagePath);
+
+  showToast('Uploading image...', '');
+  var uploadTask = storageRef.put(file);
+  uploadTask.on('state_changed',
+    null,
+    function(err) {
+      console.error(err);
+      showToast('Upload failed: ' + err.message, 'error');
+    },
+    function() {
+      uploadTask.snapshot.ref.getDownloadURL().then(function(url) {
+        var block = blocks.find(function(b) { return b._id === blockId; });
+        var oldPath = block && block.storagePath;
+
+        var updates = {
+          imageUrl: url,
+          storagePath: storagePath,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        if (!block) return;
+        if (!block.width) updates.width = 600;
+        if (!block.height) updates.height = 400;
+        if (!block.objectPosition) updates.objectPosition = '50% 50%';
+
+        db.collection(SEGMENTS_COLLECTION).doc(blockId).update(updates).then(function() {
+          Object.keys(updates).forEach(function(k) {
+            if (k !== 'updatedAt') block[k] = updates[k];
+          });
+          renderAllBlocks();
+          showToast('Image uploaded!', 'success');
+          if (oldPath && oldPath !== storagePath) {
+            storage.ref(oldPath).delete().catch(function(e) {
+              console.warn('Old storage delete failed:', e);
+            });
+          }
+        }).catch(function(err) {
+          console.error(err);
+          showToast('Save failed: ' + err.message, 'error');
+        });
+      });
+    }
+  );
+}
+
+/* ---------- IMAGE REPOSITION ---------- */
+function toggleReposition(btn) {
+  var wrapper = btn.closest('.image-block-wrapper, .image-slot');
+  if (!wrapper) return;
+  var isActive = wrapper.classList.toggle('reposition-mode');
+  btn.classList.toggle('active', isActive);
+  showToast(isActive ? 'Drag the image to reposition. Click ✥ again to finish.' : 'Position saved.', '');
+}
+
+function setupImageReposition(img, wrapper, block) {
+  var isDragging = false;
+  var startX = 0, startY = 0;
+  var startPosX = 50, startPosY = 50;
+
+  function parsePos(str) {
+    var parts = (str || '50% 50%').split(' ');
+    return { x: parseFloat(parts[0]) || 50, y: parseFloat(parts[1]) || 50 };
+  }
+
+  img.addEventListener('mousedown', function(e) {
+    if (!isAdmin) return;
+    if (!wrapper.classList.contains('reposition-mode')) return;
+    e.preventDefault();
+    isDragging = true;
+    wrapper.classList.add('is-dragging');
+    startX = e.clientX;
+    startY = e.clientY;
+    var pos = parsePos(img.style.objectPosition || block.objectPosition);
+    startPosX = pos.x;
+    startPosY = pos.y;
+    document.body.style.cursor = 'grabbing';
+  });
+
+  document.addEventListener('mousemove', function(e) {
+    if (!isDragging) return;
+    var dx = e.clientX - startX;
+    var dy = e.clientY - startY;
+    var rect = wrapper.getBoundingClientRect();
+    var newX = Math.max(0, Math.min(100, startPosX - (dx / rect.width) * 100));
+    var newY = Math.max(0, Math.min(100, startPosY - (dy / rect.height) * 100));
+    img.style.objectPosition = newX + '% ' + newY + '%';
+  });
+
+  document.addEventListener('mouseup', function() {
+    if (!isDragging) return;
+    isDragging = false;
+    wrapper.classList.remove('is-dragging');
+    document.body.style.cursor = '';
+    var newPos = img.style.objectPosition;
+    if (newPos !== block.objectPosition) {
+      block.objectPosition = newPos;
+      debounce('pos-' + block._id, function() {
+        updateBlock(block._id, { objectPosition: newPos });
+      }, 300);
+    }
+  });
+}
+
+function setupSlotReposition(img, slot, slotId) {
+  var isDragging = false;
+  var startX = 0, startY = 0;
+  var startPosX = 50, startPosY = 50;
+
+  function parsePos(str) {
+    var parts = (str || '50% 50%').split(' ');
+    return { x: parseFloat(parts[0]) || 50, y: parseFloat(parts[1]) || 50 };
+  }
+
+  img.addEventListener('mousedown', function(e) {
+    if (!isAdmin) return;
+    if (!slot.classList.contains('reposition-mode')) return;
+    e.preventDefault();
+    isDragging = true;
+    slot.classList.add('is-dragging');
+    startX = e.clientX;
+    startY = e.clientY;
+    var pos = parsePos(img.style.objectPosition);
+    startPosX = pos.x;
+    startPosY = pos.y;
+    document.body.style.cursor = 'grabbing';
+  });
+
+  var onMove = function(e) {
+    if (!isDragging) return;
+    var dx = e.clientX - startX;
+    var dy = e.clientY - startY;
+    var rect = slot.getBoundingClientRect();
+    var newX = Math.max(0, Math.min(100, startPosX - (dx / rect.width) * 100));
+    var newY = Math.max(0, Math.min(100, startPosY - (dy / rect.height) * 100));
+    img.style.objectPosition = newX + '% ' + newY + '%';
+  };
+  var onUp = function() {
+    if (!isDragging) return;
+    isDragging = false;
+    slot.classList.remove('is-dragging');
+    document.body.style.cursor = '';
+    var newPos = img.style.objectPosition;
+    debounce('slotpos-' + slotId, function() {
+      db.collection(FIRESTORE_COLLECTION).doc(slotId).update({ objectPosition: newPos }).catch(function(e) {
+        console.error(e);
+      });
+    }, 300);
+  };
+
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+}
+
+/* ---------- CROP FUNCTIONALITY ---------- */
+var cropState = { x: 0, y: 0, w: 0, h: 0, img: null, canvasRect: null };
+
+function openCropForBlock(blockId) {
+  var block = blocks.find(function(b) { return b._id === blockId; });
+  if (!block || !block.imageUrl) return;
+  currentCropContext = {
+    type: 'block',
+    id: blockId,
+    imageUrl: block.imageUrl,
+    storagePath: block.storagePath
+  };
+  loadCropImage(block.imageUrl);
+}
+
+function openCropForSlot(slotId) {
+  db.collection(FIRESTORE_COLLECTION).doc(slotId).get().then(function(doc) {
+    if (!doc.exists) return;
+    var data = doc.data();
+    currentCropContext = {
+      type: 'slot',
+      id: slotId,
+      imageUrl: data.imageUrl,
+      storagePath: data.storagePath,
+      caption: data.caption || ''
+    };
+    loadCropImage(data.imageUrl);
+  });
+}
+
+function loadCropImage(url) {
+  var canvas = document.getElementById('cropCanvas');
+  var ctx = canvas.getContext('2d');
+  var img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = function() {
+    var maxW = Math.min(window.innerWidth * 0.85, 900);
+    var maxH = window.innerHeight * 0.55;
+    var ratio = Math.min(maxW / img.naturalWidth, maxH / img.naturalHeight, 1);
+    canvas.width = Math.round(img.naturalWidth * ratio);
+    canvas.height = Math.round(img.naturalHeight * ratio);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    cropState.img = img;
+    cropState.canvasRect = { width: canvas.width, height: canvas.height };
+    var container = document.getElementById('cropCanvasContainer');
+    container.style.width = canvas.width + 'px';
+    container.style.height = canvas.height + 'px';
+    var selW = canvas.width * 0.6;
+    var selH = canvas.height * 0.6;
+    cropState.x = (canvas.width - selW) / 2;
+    cropState.y = (canvas.height - selH) / 2;
+    cropState.w = selW;
+    cropState.h = selH;
+    updateCropSelection();
+    document.getElementById('cropModal').classList.add('visible');
+  };
+  img.onerror = function() {
+    showToast('Failed to load image for cropping (possible CORS issue).', 'error');
+  };
+  img.src = url;
+}
+
+function updateCropSelection() {
+  var sel = document.getElementById('cropSelection');
+  sel.style.left = cropState.x + 'px';
+  sel.style.top = cropState.y + 'px';
+  sel.style.width = cropState.w + 'px';
+  sel.style.height = cropState.h + 'px';
+}
+
+function closeCropModal() {
+  document.getElementById('cropModal').classList.remove('visible');
+  currentCropContext = null;
+}
+
+function applyCrop() {
+  if (!currentCropContext || !cropState.img) return;
+  var img = cropState.img;
+  var scaleX = img.naturalWidth / cropState.canvasRect.width;
+  var scaleY = img.naturalHeight / cropState.canvasRect.height;
+
+  var srcX = cropState.x * scaleX;
+  var srcY = cropState.y * scaleY;
+  var srcW = cropState.w * scaleX;
+  var srcH = cropState.h * scaleY;
+
+  var outCanvas = document.createElement('canvas');
+  outCanvas.width = Math.round(srcW);
+  outCanvas.height = Math.round(srcH);
+  var outCtx = outCanvas.getContext('2d');
+  outCtx.drawImage(img, srcX, srcY, srcW, srcH, 0, 0, outCanvas.width, outCanvas.height);
+
+  var ctx = currentCropContext;
+  outCanvas.toBlob(function(blob) {
+    if (!blob) {
+      showToast('Crop failed.', 'error');
+      return;
+    }
+    if (ctx.type === 'block') {
+      closeCropModal();
+      uploadImageForBlock(ctx.id, blob, 'cropped.png');
+    } else if (ctx.type === 'slot') {
+      closeCropModal();
+      uploadImageForSlot(ctx.id, ctx.caption || '', blob);
+    }
+  }, 'image/png');
+}
+
+function setupCropInteractions() {
+  var sel = document.getElementById('cropSelection');
+  var container = document.getElementById('cropCanvasContainer');
+  if (!sel || !container) return;
+
+  var dragMode = null;
+  var dragStart = null;
+
+  sel.addEventListener('mousedown', function(e) {
+    if (e.target.classList.contains('crop-handle')) {
+      dragMode = e.target.dataset.handle;
+    } else {
+      dragMode = 'move';
+    }
+    dragStart = {
+      clientX: e.clientX, clientY: e.clientY,
+      x: cropState.x, y: cropState.y, w: cropState.w, h: cropState.h
+    };
+    e.preventDefault();
+    e.stopPropagation();
+  });
+
+  document.addEventListener('mousemove', function(e) {
+    if (!dragMode) return;
+    var dx = e.clientX - dragStart.clientX;
+    var dy = e.clientY - dragStart.clientY;
+    var maxW = cropState.canvasRect.width;
+    var maxH = cropState.canvasRect.height;
+    var nx = dragStart.x, ny = dragStart.y, nw = dragStart.w, nh = dragStart.h;
+
+    if (dragMode === 'move') {
+      nx = Math.max(0, Math.min(maxW - nw, dragStart.x + dx));
+      ny = Math.max(0, Math.min(maxH - nh, dragStart.y + dy));
+    } else {
+      if (dragMode.indexOf('l') !== -1) {
+        nx = Math.max(0, Math.min(dragStart.x + dragStart.w - 20, dragStart.x + dx));
+        nw = dragStart.w - (nx - dragStart.x);
+      }
+      if (dragMode.indexOf('r') !== -1) {
+        nw = Math.max(20, Math.min(maxW - dragStart.x, dragStart.w + dx));
+      }
+      if (dragMode.indexOf('t') !== -1) {
+        ny = Math.max(0, Math.min(dragStart.y + dragStart.h - 20, dragStart.y + dy));
+        nh = dragStart.h - (ny - dragStart.y);
+      }
+      if (dragMode.indexOf('b') !== -1) {
+        nh = Math.max(20, Math.min(maxH - dragStart.y, dragStart.h + dy));
+      }
+    }
+
+    cropState.x = nx; cropState.y = ny; cropState.w = nw; cropState.h = nh;
+    updateCropSelection();
+  });
+
+  document.addEventListener('mouseup', function() {
+    dragMode = null;
+    dragStart = null;
+  });
+}
+
+/* ---------- GLOBAL PASTE HANDLER ---------- */
+function setupGlobalPasteHandler() {
+  document.addEventListener('paste', function(e) {
+    if (!isAdmin) return;
+    var items = (e.clipboardData || window.clipboardData).items;
+    if (!items) return;
+
+    // Don't hijack pastes into editable text fields unless they contain an image
+    var target = e.target;
+    var inEditable = target && (target.isContentEditable || target.tagName === 'INPUT' || target.tagName === 'TEXTAREA');
+
+    var imageItem = null;
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') !== -1) {
+        imageItem = items[i];
+        break;
+      }
+    }
+    if (!imageItem) return;
+
+    var blob = imageItem.getAsFile();
+    if (!blob) return;
+
+    // Prefer explicit active targets
+    if (activePasteBlockId) {
+      e.preventDefault();
+      uploadImageForBlock(activePasteBlockId, blob, 'pasted.png');
+      return;
+    }
+    if (activePasteSlotId) {
+      e.preventDefault();
+      var slot = document.querySelector('[data-slot="' + activePasteSlotId + '"]');
+      var caption = slot ? (slot.dataset.caption || '') : '';
+      uploadImageForSlot(activePasteSlotId, caption, blob);
+      return;
+    }
+
+    // If pasted into an editable field with no image target, let it go
+    if (inEditable) return;
+
+    showToast('Hover over an image block or slot first, then paste.', '');
+  });
+}
+
+/* Track hover over existing image slots for paste targeting */
+function setupSlotHoverTracking() {
+  document.querySelectorAll('.image-slot').forEach(function(slot) {
+    var slotId = slot.dataset.slot;
+    slot.addEventListener('mouseenter', function() { activePasteSlotId = slotId; });
+    slot.addEventListener('mouseleave', function() {
+      if (activePasteSlotId === slotId) activePasteSlotId = null;
+    });
+  });
+}
+
+/* ---------- UPLOAD IMAGE FOR EXISTING SLOT (paste/crop/drop) ---------- */
+function uploadImageForSlot(slotId, caption, fileOrBlob) {
+  if (!isAdmin) return;
+  var file = fileOrBlob;
+  if (!file.type || file.type.indexOf('image/') !== 0) {
+    showToast('Not an image.', 'error');
+    return;
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    showToast('Image must be under 10MB.', 'error');
+    return;
+  }
+
+  var slot = document.querySelector('[data-slot="' + slotId + '"]');
+  if (!slot) return;
+
+  // Clean up any existing progress indicator for this slot
+  var existing = document.getElementById('progress-' + slotId);
+  if (existing) existing.remove();
+
+  var progressHTML = '<div class="upload-progress" id="progress-' + slotId + '">' +
+    '<div class="progress-bar-container"><div class="progress-bar-fill" id="progressFill-' + slotId + '"></div></div>' +
+    '<span class="progress-text" id="progressText-' + slotId + '">Uploading...</span>' +
+    '</div>';
+  slot.insertAdjacentHTML('beforeend', progressHTML);
+
+  var timestamp = Date.now();
+  var ext = (file.type.split('/')[1] || 'png').split('+')[0];
+  var storagePath = STORAGE_FOLDER + '/' + slotId + '_' + timestamp + '.' + ext;
+  var storageRef = storage.ref(storagePath);
+  var uploadTask = storageRef.put(file);
+
+  uploadTask.on('state_changed',
+    function(snap) {
+      var p = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
+      var f = document.getElementById('progressFill-' + slotId);
+      var t = document.getElementById('progressText-' + slotId);
+      if (f) f.style.width = p + '%';
+      if (t) t.textContent = p + '%';
+    },
+    function(err) {
+      console.error(err);
+      var pe = document.getElementById('progress-' + slotId);
+      if (pe) pe.remove();
+      showToast('Upload failed: ' + err.message, 'error');
+    },
+    function() {
+      uploadTask.snapshot.ref.getDownloadURL().then(function(url) {
+        db.collection(FIRESTORE_COLLECTION).doc(slotId).set({
+          imageUrl: url,
+          caption: caption,
+          slotId: slotId,
+          storagePath: storagePath,
+          objectPosition: '50% 50%',
+          uploadedBy: currentUser ? currentUser.email : '',
+          uploadedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(function() {
+          var pe = document.getElementById('progress-' + slotId);
+          if (pe) pe.remove();
+          renderImage(slotId, url, caption, storagePath, '50% 50%');
+          showToast('Image uploaded!', 'success');
+        });
+      });
+    }
+  );
+}
+
+/* ---------- MODAL BACKDROP CLOSE ---------- */
+function setupModalBackdropClose() {
+  document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) {
+        overlay.classList.remove('visible');
+      }
+    });
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal-overlay.visible').forEach(function(m) {
+        m.classList.remove('visible');
+      });
+    }
+  });
+}
 </script>
 </body>
 </html>
