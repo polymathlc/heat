@@ -472,6 +472,60 @@ main {
   display: flex;
 }
 
+/* Slot crop button (visible in admin when slot has an image) */
+.slot-crop-btn {
+  position: absolute;
+  top: 6px;
+  right: 40px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+  font-size: 13px;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+}
+.slot-crop-btn:hover {
+  background: var(--accent-bg);
+  color: var(--accent-deeper);
+  border-color: var(--accent-base);
+}
+.admin-mode .image-slot.has-image .slot-crop-btn { display: flex; }
+
+/* Paste/drop hint shown on hover of an empty slot in admin mode */
+.paste-hint {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(30, 136, 229, 0.12);
+  color: var(--accent-deeper);
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 10px;
+  font-weight: 600;
+  pointer-events: none;
+  z-index: 6;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+.admin-mode .image-slot:not(.has-image):hover .paste-hint { opacity: 1; }
+
+/* Visual feedback for drag-over / paste-target state */
+.image-slot.paste-target {
+  outline: 3px solid var(--accent-base);
+  outline-offset: 2px;
+  background: var(--accent-bg);
+}
+
 /* ========== UPLOADING PROGRESS ========== */
 .upload-progress {
   position: absolute;
@@ -2189,6 +2243,8 @@ document.addEventListener('DOMContentLoaded', function() {
   loadAllImages();
   loadAllSegments();
   setupAuthListener();
+  setupImageSlotHoverAndDrop();
+  setupGlobalPasteHandler();
 });
 
 /* ========================================================================
@@ -2347,6 +2403,8 @@ function renderImage(slotId, imageUrl, caption, storagePath) {
   if (existingCaption) existingCaption.remove();
   var existingDelete = slot.querySelector('.delete-btn');
   if (existingDelete) existingDelete.remove();
+  var existingCrop = slot.querySelector('.slot-crop-btn');
+  if (existingCrop) existingCrop.remove();
 
   /* Add image */
   var img = document.createElement('img');
@@ -2362,6 +2420,17 @@ function renderImage(slotId, imageUrl, caption, storagePath) {
   captionDiv.textContent = caption;
   slot.appendChild(captionDiv);
 
+  /* Add crop button (visible only in admin mode when slot has an image) */
+  var cropBtn = document.createElement('button');
+  cropBtn.className = 'slot-crop-btn';
+  cropBtn.innerHTML = '✂';
+  cropBtn.title = 'Crop image';
+  cropBtn.onclick = function(e) {
+    e.stopPropagation();
+    openCropForSlot(slotId, caption, storagePath, imageUrl);
+  };
+  slot.appendChild(cropBtn);
+
   /* Add delete button (visible only in admin mode) */
   var deleteBtn = document.createElement('button');
   deleteBtn.className = 'delete-btn';
@@ -2375,6 +2444,7 @@ function renderImage(slotId, imageUrl, caption, storagePath) {
 
   slot.classList.add('has-image');
   slot.style.position = 'relative';
+  if (storagePath) slot.dataset.storagePath = storagePath;
 }
 
 /* ========================================================================
@@ -2405,6 +2475,7 @@ function deleteImage(slotId, storagePath) {
       var placeholder = slot.querySelector('.placeholder-text');
       if (placeholder) placeholder.style.display = '';
       slot.classList.remove('has-image');
+      delete slot.dataset.storagePath;
     }
     showToast('Image deleted.', 'success');
   }).catch(function(error) {
@@ -2425,6 +2496,184 @@ function loadAllImages() {
     });
   }).catch(function(error) {
     console.error('Error loading images:', error);
+  });
+}
+
+/* ========================================================================
+   SHARED SLOT UPLOAD (file from input, paste, drop, or cropped blob)
+   ======================================================================== */
+function uploadImageToSlot(fileOrBlob, slotId, caption, previousStoragePath) {
+  if (!isAdmin) {
+    showToast('Only admin can upload images.', 'error');
+    return;
+  }
+  if (!fileOrBlob || !fileOrBlob.type || !fileOrBlob.type.startsWith('image/')) {
+    showToast('Please provide an image file.', 'error');
+    return;
+  }
+  if (fileOrBlob.size > 10 * 1024 * 1024) {
+    showToast('Image must be under 10MB.', 'error');
+    return;
+  }
+
+  var slot = document.querySelector('[data-slot="' + slotId + '"]');
+  if (!slot) return;
+
+  /* Remove any prior progress UI for this slot */
+  var existingProgress = document.getElementById('progress-' + slotId);
+  if (existingProgress) existingProgress.remove();
+
+  var progressHTML = '<div class="upload-progress" id="progress-' + slotId + '">' +
+    '<div class="progress-bar-container"><div class="progress-bar-fill" id="progressFill-' + slotId + '"></div></div>' +
+    '<span class="progress-text" id="progressText-' + slotId + '">Uploading...</span>' +
+    '</div>';
+  slot.insertAdjacentHTML('beforeend', progressHTML);
+
+  var timestamp = Date.now();
+  var extPart = (fileOrBlob.name && fileOrBlob.name.indexOf('.') !== -1) ? fileOrBlob.name.split('.').pop() : '';
+  if (!extPart || extPart.length > 5) {
+    extPart = (fileOrBlob.type.split('/')[1] || 'png').replace(/[^a-z0-9]/gi, '');
+  }
+  var storagePath = STORAGE_FOLDER + '/' + slotId + '_' + timestamp + '.' + extPart;
+  var storageRef = storage.ref(storagePath);
+  var uploadTask = storageRef.put(fileOrBlob);
+
+  uploadTask.on('state_changed',
+    function(snapshot) {
+      var pct = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+      var f = document.getElementById('progressFill-' + slotId);
+      var t = document.getElementById('progressText-' + slotId);
+      if (f) f.style.width = pct + '%';
+      if (t) t.textContent = pct + '%';
+    },
+    function(err) {
+      console.error('Upload error:', err);
+      var pe = document.getElementById('progress-' + slotId);
+      if (pe) pe.remove();
+      showToast('Upload failed: ' + err.message, 'error');
+    },
+    function() {
+      uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+        db.collection(FIRESTORE_COLLECTION).doc(slotId).set({
+          imageUrl: downloadURL,
+          caption: caption,
+          slotId: slotId,
+          storagePath: storagePath,
+          uploadedBy: currentUser ? currentUser.email : '',
+          uploadedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(function() {
+          var pe = document.getElementById('progress-' + slotId);
+          if (pe) pe.remove();
+          renderImage(slotId, downloadURL, caption, storagePath);
+          /* Delete previous image from storage if path changed */
+          if (previousStoragePath && previousStoragePath !== storagePath) {
+            storage.ref(previousStoragePath).delete().catch(function() {});
+          }
+          showToast('Image uploaded successfully!', 'success');
+        }).catch(function(err) {
+          console.error('Firestore error:', err);
+          var pe = document.getElementById('progress-' + slotId);
+          if (pe) pe.remove();
+          showToast('Save failed: ' + err.message, 'error');
+        });
+      });
+    }
+  );
+}
+
+/* ========================================================================
+   PASTE & DRAG-DROP ON IMAGE SLOTS
+   ======================================================================== */
+var _hoveredImageSlot = null;
+
+function setupImageSlotHoverAndDrop() {
+  document.querySelectorAll('.image-slot').forEach(function(slot) {
+    slot.addEventListener('mouseenter', function() { _hoveredImageSlot = slot; });
+    slot.addEventListener('mouseleave', function() {
+      if (_hoveredImageSlot === slot) _hoveredImageSlot = null;
+    });
+
+    /* Drag over / drop an image file directly */
+    slot.addEventListener('dragover', function(e) {
+      if (!isAdmin) return;
+      if (!e.dataTransfer || !e.dataTransfer.types) return;
+      var hasFile = false;
+      for (var i = 0; i < e.dataTransfer.types.length; i++) {
+        if (e.dataTransfer.types[i] === 'Files') { hasFile = true; break; }
+      }
+      if (!hasFile) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+      slot.classList.add('paste-target');
+    });
+    slot.addEventListener('dragleave', function() {
+      slot.classList.remove('paste-target');
+    });
+    slot.addEventListener('drop', function(e) {
+      if (!isAdmin) return;
+      slot.classList.remove('paste-target');
+      if (!e.dataTransfer || !e.dataTransfer.files || e.dataTransfer.files.length === 0) return;
+      var file = e.dataTransfer.files[0];
+      if (!file.type || !file.type.startsWith('image/')) return;
+      e.preventDefault();
+      var slotId = slot.dataset.slot;
+      var caption = slot.dataset.caption || '';
+      var prev = getSlotStoragePath(slot);
+      uploadImageToSlot(file, slotId, caption, prev);
+    });
+
+    /* Add a small paste hint for empty slots */
+    if (!slot.querySelector('.paste-hint')) {
+      var hint = document.createElement('div');
+      hint.className = 'paste-hint';
+      hint.textContent = 'Paste (Ctrl+V) or drop an image';
+      slot.appendChild(hint);
+    }
+  });
+}
+
+/* Resolve the storage path currently associated with a slot's image
+   (read from the most recent delete-btn onclick closure via data attr) */
+function getSlotStoragePath(slot) {
+  /* Fallback: query Firestore later — for now, return null since
+     uploadImageToSlot will only use this to clean old storage objects. */
+  return slot.dataset.storagePath || null;
+}
+
+function setupGlobalPasteHandler() {
+  document.addEventListener('paste', function(e) {
+    if (!isAdmin) return;
+    if (!_hoveredImageSlot) return;
+
+    /* Don't hijack paste inside editable areas (segment text blocks,
+       caption fields) unless the paste is actually an image. */
+    var target = e.target;
+    var inEditable = target && (target.isContentEditable || target.tagName === 'INPUT' || target.tagName === 'TEXTAREA');
+
+    var cd = e.clipboardData || window.clipboardData;
+    if (!cd || !cd.items) return;
+
+    var imageItem = null;
+    for (var i = 0; i < cd.items.length; i++) {
+      var it = cd.items[i];
+      if (it.kind === 'file' && it.type.indexOf('image') !== -1) {
+        imageItem = it;
+        break;
+      }
+    }
+    if (!imageItem) return;
+
+    /* If user is typing in an editable field, don't override — they're
+       probably trying to paste an image into text which we don't support
+       anyway. Only capture paste when hovering over a slot and not editing. */
+    if (inEditable && !_hoveredImageSlot.contains(target)) return;
+
+    var file = imageItem.getAsFile();
+    if (!file) return;
+
+    e.preventDefault();
+    var slot = _hoveredImageSlot;
+    uploadImageToSlot(file, slot.dataset.slot, slot.dataset.caption || '', slot.dataset.storagePath || null);
   });
 }
 
@@ -3167,8 +3416,15 @@ var currentCropContext = null;
 function openCropForBlock(segmentId, block, frameEl) {
   if (!isAdmin) return;
   if (!block || !block.imageUrl) return;
-  currentCropContext = { segmentId: segmentId, block: block, frameEl: frameEl };
+  currentCropContext = { type: 'block', segmentId: segmentId, block: block, frameEl: frameEl };
   loadCropImage(block.imageUrl);
+}
+
+function openCropForSlot(slotId, caption, storagePath, imageUrl) {
+  if (!isAdmin) return;
+  if (!imageUrl) return;
+  currentCropContext = { type: 'slot', slotId: slotId, caption: caption || '', storagePath: storagePath || '' };
+  loadCropImage(imageUrl);
 }
 
 function loadCropImage(url) {
@@ -3243,14 +3499,18 @@ function applyCrop() {
       showToast('Crop failed.', 'error');
       return;
     }
-    /* Reset pan/zoom on the block so the new crop fills the frame */
-    if (ctxRef.block) {
-      ctxRef.block.offsetX = 50;
-      ctxRef.block.offsetY = 50;
-      ctxRef.block.zoom = 1;
-    }
     closeCropModal();
-    uploadImageBlockFile(blob, ctxRef.segmentId, ctxRef.block, ctxRef.frameEl);
+    if (ctxRef.type === 'slot') {
+      uploadImageToSlot(blob, ctxRef.slotId, ctxRef.caption, ctxRef.storagePath);
+    } else {
+      /* Reset pan/zoom on the block so the new crop fills the frame */
+      if (ctxRef.block) {
+        ctxRef.block.offsetX = 50;
+        ctxRef.block.offsetY = 50;
+        ctxRef.block.zoom = 1;
+      }
+      uploadImageBlockFile(blob, ctxRef.segmentId, ctxRef.block, ctxRef.frameEl);
+    }
   }, 'image/png');
 }
 
