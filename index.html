@@ -3431,9 +3431,8 @@ function loadCropImage(url) {
   var canvas = document.getElementById('cropCanvas');
   if (!canvas) return;
   var ctx = canvas.getContext('2d');
-  var img = new Image();
-  img.crossOrigin = 'anonymous';
-  img.onload = function() {
+
+  function showImage(img, objectUrl) {
     var maxW = Math.min(window.innerWidth * 0.85, 880);
     var maxH = window.innerHeight * 0.55;
     var ratio = Math.min(maxW / img.naturalWidth, maxH / img.naturalHeight, 1);
@@ -3442,6 +3441,10 @@ function loadCropImage(url) {
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     cropState.img = img;
     cropState.canvasRect = { width: canvas.width, height: canvas.height };
+    if (cropState.objectUrl && cropState.objectUrl !== objectUrl) {
+      URL.revokeObjectURL(cropState.objectUrl);
+    }
+    cropState.objectUrl = objectUrl || null;
     var container = document.getElementById('cropCanvasContainer');
     container.style.width = canvas.width + 'px';
     container.style.height = canvas.height + 'px';
@@ -3453,12 +3456,38 @@ function loadCropImage(url) {
     cropState.h = selH;
     updateCropSelection();
     document.getElementById('cropModal').classList.add('visible');
-  };
-  img.onerror = function() {
+  }
+
+  function handleError() {
     showToast('Failed to load image for cropping (possible CORS issue).', 'error');
     currentCropContext = null;
-  };
-  img.src = url;
+  }
+
+  /* Fetch as blob first so the resulting blob: URL is same-origin and the
+     canvas stays untainted regardless of the remote host's CORS headers. */
+  fetch(url, { mode: 'cors', credentials: 'omit', cache: 'reload' })
+    .then(function(res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.blob();
+    })
+    .then(function(blob) {
+      var objectUrl = URL.createObjectURL(blob);
+      var img = new Image();
+      img.onload = function() { showImage(img, objectUrl); };
+      img.onerror = function() {
+        URL.revokeObjectURL(objectUrl);
+        handleError();
+      };
+      img.src = objectUrl;
+    })
+    .catch(function() {
+      /* Fallback: try a direct CORS-enabled image load. */
+      var img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = function() { showImage(img, null); };
+      img.onerror = handleError;
+      img.src = url;
+    });
 }
 
 function updateCropSelection() {
@@ -3473,6 +3502,11 @@ function updateCropSelection() {
 function closeCropModal() {
   var m = document.getElementById('cropModal');
   if (m) m.classList.remove('visible');
+  if (cropState.objectUrl) {
+    URL.revokeObjectURL(cropState.objectUrl);
+    cropState.objectUrl = null;
+  }
+  cropState.img = null;
   currentCropContext = null;
 }
 
